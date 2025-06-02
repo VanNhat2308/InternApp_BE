@@ -13,7 +13,7 @@ return new class extends Migration
     {
        Schema::create('ho_sos', function (Blueprint $table) {
         $table->string('maHS')->primary(); // Khóa chính
-        $table->string('maSV')->unique(); // Khóa phụ, liên kết 1-1 đến SinhVien
+        $table->unsignedBigInteger('maSV')->unique(); // 1-1: mỗi bản ghi chỉ gắn với 1 SinhVien
         $table->date('ngayNop')->nullable();
         $table->string('trangThai')->nullable();
 

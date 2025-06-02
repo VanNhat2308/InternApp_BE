@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('ngayTao')->nullable();
             $table->text('noiDung')->nullable();
 
-            $table->string('maSV')->unique();        // Khóa ngoại, unique để đảm bảo 1-1
+            $table->unsignedBigInteger('maSV')->unique(); // 1-1: mỗi bản ghi chỉ gắn với 1 SinhVien     // Khóa ngoại, unique để đảm bảo 1-1
             $table->foreign('maSV')->references('maSV')->on('sinh_viens')->onDelete('cascade');
 
             $table->timestamps();

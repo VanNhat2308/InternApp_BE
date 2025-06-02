@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('noiDung')->nullable();      // Nội dung
             $table->string('trangThai')->nullable();  // Trạng thái (VD: đã học, nghỉ...)
 
-            $table->string('maSV');                   // Khóa phụ
+            $table->unsignedBigInteger('maSV'); // 1-1: mỗi bản ghi chỉ gắn với 1 SinhVien
             $table->foreign('maSV')->references('maSV')->on('sinh_viens')->onDelete('cascade');
 
             $table->timestamps();

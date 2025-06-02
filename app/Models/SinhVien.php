@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\Task;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,6 +10,8 @@ class SinhVien extends Model
      use HasFactory;
 
     protected $table = 'sinh_viens';
+    protected $primaryKey = 'maSV';
+    protected $keyType = 'string';
 
     protected $fillable = [
         'maSV',
@@ -50,6 +52,15 @@ public function nhatKy()
 public function baoCao()
 {
     return $this->hasOne(BaoCao::class, 'maSV', 'maSV');
+}
+public function tasks()
+{
+    return $this->hasMany(Task::class, 'maSV');
+}
+
+public function diemDanhs()
+{
+    return $this->hasMany(DiemDanh::class, 'maSV', 'maSV');
 }
 
 
