@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\SinhVien;
+use Carbon\Carbon;
+
 class SinhVienController extends Controller
 {
       // GET /api/sinhviens/countSV
@@ -15,6 +17,41 @@ class SinhVienController extends Controller
                 'total_sv' => $countSv]
             );
         }
+
+        //get /api/sinhviens/{maSv}
+public function getAllSinhVienDiemDanh()
+{
+    $danhSach = SinhVien::with('diemDanhs')->get();
+
+    return response()->json($danhSach);
+}
+
+
+
+    public function getSinhVienDiemDanh($maSV)
+{
+    $sinhVien = SinhVien::with('diemDanhs')->find($maSV);
+
+    if (!$sinhVien) {
+        return response()->json(['message' => 'Không tìm thấy sinh viên'], 404);
+    }
+
+    return response()->json($sinhVien);
+}
+
+
+public function getAllSinhVienDiemDanhHomNay()
+{
+    $today = Carbon::today()->toDateString();
+
+    // Lấy tất cả sinh viên, chỉ load điểm danh trong ngày hôm nay
+    $danhSach = SinhVien::with(['diemDanhs' => function ($query) use ($today) {
+        $query->whereDate('ngay_diem_danh', $today);
+    }])->get();
+
+    return response()->json($danhSach);
+}
+
 
 
 
