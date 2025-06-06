@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiemDanhController;
+use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HoSoController;
 use App\Http\Controllers\SinhVienController;
 use App\Http\Controllers\TaskController;
@@ -42,3 +43,8 @@ Route::get('/test', function () {
 // auth provider
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
+
+
+
+// file upload
+Route::post('/upload', [FileUploadController::class, 'upload']);
