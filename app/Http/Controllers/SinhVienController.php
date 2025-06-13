@@ -55,16 +55,20 @@ public function getAllSinhVienDiemDanhHomNay()
 
 
 
-    // Lấy danh sách tất cả sinh viên
-    public function index()
-    {
-        $sinhViens = SinhVien::all();
+public function index(Request $request)
+{
+    $perPage = $request->input('per_page', 10);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $sinhViens
-        ]);
-    }
+    // Lấy danh sách sinh viên + thông tin trường kèm theo
+    $sinhViens = SinhVien::with('truong')->paginate($perPage);
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $sinhViens
+    ]);
+}
+
+
 
     /**
      * Store a newly created resource in storage.

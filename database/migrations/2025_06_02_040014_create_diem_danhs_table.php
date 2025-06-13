@@ -17,7 +17,8 @@ return new class extends Migration
             $table->date('ngay_diem_danh');
             $table->time('gio_bat_dau')->nullable();
             $table->time('gio_ket_thuc')->nullable();
-            $table->enum('trang_thai', ['co_mat', 'vang', 'muon'])->default('co_mat');
+            $table->enum('trang_thai', ['on_time', 'absent', 'late'])->default('on_time');
+
             $table->string('ghi_chu')->nullable();
             $table->timestamps();
 

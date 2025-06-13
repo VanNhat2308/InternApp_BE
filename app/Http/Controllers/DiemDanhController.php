@@ -26,18 +26,19 @@ public function danhSachSinhVienDiemDanhHomNay()
 {
     $homNay = Carbon::today()->toDateString();
 
-    // Lấy danh sách điểm danh hôm nay kèm thông tin sinh viên
+    // Lấy danh sách điểm danh hôm nay, phân trang 15 sinh viên mỗi lần
     $danhSach = DiemDanh::with('sinhVien')
         ->whereDate('ngay_diem_danh', $homNay)
-        ->get();
+        ->paginate(15); // phân trang
 
     return response()->json([
         'status' => 'success',
         'ngay' => $homNay,
-        'so_luong' => $danhSach->count(),
+        'so_luong' => $danhSach->total(),  // tổng tất cả sinh viên điểm danh hôm nay
         'data' => $danhSach
     ]);
 }
+
 public function thongKeTuanTruocVaHienTai()
 {
     $days = ['mon', 'tue', 'wed', 'thu', 'fri'];
@@ -59,15 +60,15 @@ public function thongKeTuanTruocVaHienTai()
 
         $countsTruoc = DiemDanh::whereDate('ngay_diem_danh', $dateTruoc)
             ->selectRaw("
-                SUM(CASE WHEN trang_thai = 'co_mat' THEN 1 ELSE 0 END) as co_mat,
-                SUM(CASE WHEN trang_thai = 'muon' THEN 1 ELSE 0 END) as muon,
-                SUM(CASE WHEN trang_thai = 'vang' THEN 1 ELSE 0 END) as vang
+                SUM(CASE WHEN trang_thai = 'on_time' THEN 1 ELSE 0 END) as on_time,
+                SUM(CASE WHEN trang_thai = 'late' THEN 1 ELSE 0 END) as late,
+                SUM(CASE WHEN trang_thai = 'absent' THEN 1 ELSE 0 END) as absent
             ")->first();
 
         $result['tuanTruoc'][$dayKey] = [
-            (int) $countsTruoc->co_mat,
-            (int) $countsTruoc->muon,
-            (int) $countsTruoc->vang,
+            (int) $countsTruoc->on_time,
+            (int) $countsTruoc->late,
+            (int) $countsTruoc->absent,
         ];
 
         // Ngày trong tuần hiện tại
@@ -75,15 +76,15 @@ public function thongKeTuanTruocVaHienTai()
 
         $countsHienTai = DiemDanh::whereDate('ngay_diem_danh', $dateHienTai)
             ->selectRaw("
-                SUM(CASE WHEN trang_thai = 'co_mat' THEN 1 ELSE 0 END) as co_mat,
-                SUM(CASE WHEN trang_thai = 'muon' THEN 1 ELSE 0 END) as muon,
-                SUM(CASE WHEN trang_thai = 'vang' THEN 1 ELSE 0 END) as vang
+                SUM(CASE WHEN trang_thai = 'on_time' THEN 1 ELSE 0 END) as on_time,
+                SUM(CASE WHEN trang_thai = 'late' THEN 1 ELSE 0 END) as late,
+                SUM(CASE WHEN trang_thai = 'absent' THEN 1 ELSE 0 END) as absent
             ")->first();
 
         $result['tuanHienTai'][$dayKey] = [
-            (int) $countsHienTai->co_mat,
-            (int) $countsHienTai->muon,
-            (int) $countsHienTai->vang,
+            (int) $countsHienTai->on_time,
+            (int) $countsHienTai->late,
+            (int) $countsHienTai->absent,
         ];
     }
 

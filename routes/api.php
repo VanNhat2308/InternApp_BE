@@ -14,6 +14,7 @@ Route::get('/sinhviens/countSV', [SinhVienController::class, 'countSV']);
 Route::get('/sinhviens/danh-sach-diem-danh', [SinhVienController::class, 'getAllSinhVienDiemDanh']);
 Route::get('/sinhviens/danh-sach-diem-danh/{maSv}', [SinhVienController::class, 'getSinhVienDiemDanh']);
 Route::get('/sinhviens/diem-danh-hom-nay', [SinhVienController::class, 'getAllSinhVienDiemDanhHomNay']);
+Route::get('/sinhviens/lay-danh-sach-sinh-vien', [SinhVienController::class, 'index']);
 
 
 
