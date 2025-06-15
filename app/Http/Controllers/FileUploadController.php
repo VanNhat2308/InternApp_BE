@@ -9,19 +9,28 @@ use Illuminate\Support\Facades\Storage;
 class FileUploadController extends Controller
 {
     
-    public function upload(Request $request)
-    {
-        // Validate file
-        $request->validate([
-            'file' => 'required|file|mimes:pdf,jpg,png|max:2048', // 2MB max
-        ]);
+public function upload(Request $request)
+{
+    $request->validate([
+        'avatar' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+        'cv' => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:2048',
+    ]);
 
-        // Store file
-        $path = $request->file('file')->store('uploads', 'public'); // lưu vào storage/app/public/uploads
+    $paths = [];
 
-        return response()->json([
-            'message' => 'File uploaded successfully',
-            'path' => $path,
-        ]);
+    if ($request->hasFile('avatar')) {
+        $paths['avatar'] = $request->file('avatar')->store('avatars', 'public');
     }
+
+    if ($request->hasFile('cv')) {
+        $paths['cv'] = $request->file('cv')->store('cvs', 'public');
+    }
+
+    return response()->json([
+        'message' => 'Files uploaded successfully',
+        'paths' => $paths,
+    ]);
+}
+
+
 }

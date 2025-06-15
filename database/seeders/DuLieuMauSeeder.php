@@ -13,8 +13,11 @@ class DuLieuMauSeeder extends Seeder
     {
         // 1. Thêm trường
         DB::table('truongs')->insert([
-            ['maTruong' => 'T01', 'tenTruong' => 'Trường CNTT HCM', 'moTa' => 'Trường đào tạo công nghệ thông tin'],
-            ['maTruong' => 'T02', 'tenTruong' => 'Trường Kinh tế HN', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
+            ['maTruong' => 'T01', 'tenTruong' => 'VLU', 'moTa' => 'Trường đào tạo công nghệ thông tin'],
+            ['maTruong' => 'T02', 'tenTruong' => 'UEF', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
+            ['maTruong' => 'T03', 'tenTruong' => 'HSU', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
+            ['maTruong' => 'T04', 'tenTruong' => 'UEH', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
+            ['maTruong' => 'T05', 'tenTruong' => 'UEL', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
         ]);
 
         // 2. Tạo 100 sinh viên và các dữ liệu liên quan
@@ -34,7 +37,7 @@ class DuLieuMauSeeder extends Seeder
                 'tenGiangVien' => 'GV ' . $i,
                 'thoiGianTT' => '2024-01-01',
                 'viTri' => collect(['Front-end Developer', 'Back-end Developer', 'Fullstack', 'Tester','Graphic Design','Business analyst','Digital Marketing'])->random(),
-                'maTruong' => $i % 2 == 0 ? 'T01' : 'T02',
+                'maTruong' => collect(['T01','T02','T03','T04','T05'])->random(),
             ]);
 
             // 3. Hồ sơ

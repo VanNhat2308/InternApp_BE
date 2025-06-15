@@ -58,9 +58,41 @@ public function getAllSinhVienDiemDanhHomNay()
 public function index(Request $request)
 {
     $perPage = $request->input('per_page', 10);
+    $search = $request->input('search');
+    $viTri = array_filter(explode(',', $request->input('vi_tri', '')));
+    $truong = array_filter(explode(',', $request->input('truong', '')));
+    $kyThucTap = $request->input('ky_thuc_tap');
 
-    // Lấy danh sách sinh viên + thông tin trường kèm theo
-    $sinhViens = SinhVien::with('truong')->paginate($perPage);
+    $query = SinhVien::with('truong');
+
+    // Tìm kiếm theo tên sinh viên
+    if ($search) {
+        $query->where('hoTen', 'like', "%{$search}%");
+    }
+
+    // Lọc theo nhiều vị trí (gần đúng)
+    if (!empty($viTri)) {
+        $query->where(function ($q) use ($viTri) {
+            foreach ($viTri as $value) {
+                $q->orWhere('viTri', 'like', '%' . $value . '%');
+            }
+        });
+    }
+
+    // Lọc theo nhiều trường (gần đúng)
+    if (!empty($truong)) {
+        $query->whereHas('truong', function ($q) use ($truong) {
+            $q->whereIn('tenTruong', array_map('trim', $truong));
+        });
+    }
+
+    // Lọc theo kỳ thực tập
+    if ($kyThucTap) {
+        $query->where('ky_thuc_tap', $kyThucTap);
+    }
+
+    // Paginate & Trả kết quả
+    $sinhViens = $query->paginate($perPage);
 
     return response()->json([
         'status' => 'success',
@@ -68,15 +100,62 @@ public function index(Request $request)
     ]);
 }
 
-
-
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        //
-    }
+public function store(Request $request)
+{
+    // Bước 1: Xác thực dữ liệu
+    $validated = $request->validate([
+        'maSV'           => 'required|string|unique:sinh_viens,maSV',
+        'tenDangNhap'    => 'required|string|unique:sinh_viens,tenDangNhap',
+        'password'       => 'required|string|min:6',
+        'hoTen'          => 'required|string|max:255',
+        'email'          => 'required|email|unique:sinh_viens,email',
+        'soDienThoai'    => 'nullable|string|max:15',
+        'diaChi'         => 'nullable|string',
+        'ngaySinh'       => 'nullable|date',
+        'gioiTinh'       => 'nullable|in:Nam,Nữ,Khác',
+        'nganh'          => 'nullable|string',
+        'duLieuKhuonMat' => 'nullable|string',
+        'cV'             => 'nullable|string',
+        'soDTGV'         => 'nullable|string',
+        'tenGiangVien'   => 'nullable|string',
+        'thoiGianTT'     => 'nullable|string',
+        'viTri'          => 'nullable|string',
+        'maTruong'       => 'required|exists:truongs,id' // hoặc maTruong nếu khác
+    ]);
+
+    // Bước 2: Lưu sinh viên mới
+    $password = $validated['password'] ?? 'pwd123';
+    $sinhVien = SinhVien::create([
+        'maSV'           => $validated['maSV'],
+        'tenDangNhap'    => $validated['tenDangNhap'],
+        'password'       => bcrypt($validated['password']),
+        'hoTen'          => $validated['hoTen'],
+        'email'          => $validated['email'],
+        'soDienThoai'    => $validated['soDienThoai'] ?? null,
+        'diaChi'         => $validated['diaChi'] ?? null,
+        'ngaySinh'       => $validated['ngaySinh'] ?? null,
+        'gioiTinh'       => $validated['gioiTinh'] ?? null,
+        'nganh'          => $validated['nganh'] ?? null,
+        'duLieuKhuonMat' => $validated['duLieuKhuonMat'] ?? null,
+        'cV'             => $validated['cV'] ?? null,
+        'soDTGV'         => $validated['soDTGV'] ?? null,
+        'tenGiangVien'   => $validated['tenGiangVien'] ?? null,
+        'thoiGianTT'     => $validated['thoiGianTT'] ?? null,
+        'viTri'          => $validated['viTri'] ?? null,
+        'maTruong'       => $validated['maTruong'],
+    ]);
+
+    // Bước 3: Trả kết quả
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Thêm sinh viên thành công',
+        'data' => $sinhVien
+    ], 201);
+}
+
 
     /**
      * Display the specified resource.
