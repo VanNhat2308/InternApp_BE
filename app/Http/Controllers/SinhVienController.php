@@ -123,7 +123,8 @@ public function store(Request $request)
         'tenGiangVien'   => 'nullable|string',
         'thoiGianTT'     => 'nullable|string',
         'viTri'          => 'nullable|string',
-        'maTruong'       => 'required|exists:truongs,id' // hoặc maTruong nếu khác
+         'maTruong' => 'required|exists:truongs,maTruong'
+// hoặc maTruong nếu khác
     ]);
 
     // Bước 2: Lưu sinh viên mới
