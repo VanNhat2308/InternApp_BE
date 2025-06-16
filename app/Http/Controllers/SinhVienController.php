@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\SinhVien;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class SinhVienController extends Controller
 {
@@ -181,10 +182,43 @@ public function store(Request $request)
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+   public function update(Request $request, $id)
+{
+    $sinhVien = SinhVien::findOrFail($id);
+
+    // Xoá file avatar cũ nếu có file mới
+    if ($request->hasFile('avatar')) {
+        if ($sinhVien->duLieuKhuonMat && Storage::disk('public')->exists($sinhVien->duLieuKhuonMat)) {
+            Storage::disk('public')->delete($sinhVien->duLieuKhuonMat);
+        }
+        $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        $sinhVien->duLieuKhuonMat = $avatarPath;
     }
+
+    // Xoá file CV cũ nếu có file mới
+    if ($request->hasFile('cv')) {
+        if ($sinhVien->cV && Storage::disk('public')->exists($sinhVien->cV)) {
+            Storage::disk('public')->delete($sinhVien->cV);
+        }
+        $cvPath = $request->file('cv')->store('cvs', 'public');
+        $sinhVien->cV = $cvPath;
+    }
+
+    // Cập nhật thông tin
+    $sinhVien->hoTen = $request->hoTen;
+    $sinhVien->maSV = $request->maSV;
+    $sinhVien->maTruong = $request->maTruong;
+    $sinhVien->email = $request->email;
+    $sinhVien->nganh = $request->nganh;
+    $sinhVien->viTri = $request->viTri;
+    $sinhVien->diaChi = $request->diaChi;
+    $sinhVien->soDienThoai = $request->soDienThoai;
+    $sinhVien->ngaySinh = $request->ngaySinh;
+
+    $sinhVien->save();
+
+    return response()->json(['message' => 'Cập nhật thành công', 'data' => $sinhVien]);
+}
 
     /**
      * Remove the specified resource from storage.
