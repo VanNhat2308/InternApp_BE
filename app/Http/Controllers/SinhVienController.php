@@ -161,9 +161,21 @@ public function store(Request $request)
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $maSV)
     {
-        //
+       $sinhVien = SinhVien::with('truong')->where('maSV', $maSV)->first();
+
+    if (!$sinhVien) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Không tìm thấy sinh viên với mã: ' . $maSV
+        ], 404);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $sinhVien
+    ]);
     }
 
     /**
@@ -177,8 +189,20 @@ public function store(Request $request)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy($maSV)
+{
+    $sinhVien = SinhVien::where('maSV', $maSV)->first();
+
+    if (!$sinhVien) {
+        return response()->json([
+            'message' => 'Không tìm thấy sinh viên',
+        ], 404);
     }
+
+    $sinhVien->delete();
+
+    return response()->json([
+        'message' => 'Xóa sinh viên thành công',
+    ], 200);
+}
 }

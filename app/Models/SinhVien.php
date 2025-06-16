@@ -15,6 +15,7 @@ class SinhVien extends Model
 
     protected $fillable = [
         'maSV',
+        'trangThai',
         'tenDangNhap',
         'password',
         'hoTen',
@@ -30,6 +31,7 @@ class SinhVien extends Model
         'tenGiangVien',
         'thoiGianTT',
         'viTri',
+        'kyThucTap',
         'maTruong',
     ];
 

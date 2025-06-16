@@ -5,10 +5,63 @@ namespace App\Http\Controllers;
 use App\Models\DiemDanh;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DiemDanhController extends Controller
 {
-    
+// 
+  public function thongKeDiemDanh($maSV)
+    {
+        $data = [
+            'week' => $this->thongKeTheoKhoang($maSV, Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()),
+            'month' => $this->thongKeTheoKhoang($maSV, Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()),
+            'semester' => $this->thongKeTheoHocKy($maSV),
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
+    }
+
+    protected function thongKeTheoKhoang($maSV, $startDate, $endDate)
+    {
+        $counts = DB::table('diem_danhs')
+            ->where('maSV', $maSV)
+            ->whereBetween('ngay_diem_danh', [$startDate->toDateString(), $endDate->toDateString()])
+            ->select('trang_thai', DB::raw('count(*) as total'))
+            ->groupBy('trang_thai')
+            ->pluck('total', 'trang_thai');
+
+        return [
+            [
+                'name' => 'Đúng giờ',
+                'value' => $counts['on_time'] ?? 0,
+                'color' => '#00cc00'
+            ],
+            [
+                'name' => 'Trễ',
+                'value' => $counts['late'] ?? 0,
+                'color' => '#fbc02d'
+            ],
+            [
+                'name' => 'Nghỉ làm',
+                'value' => $counts['absent'] ?? 0,
+                'color' => '#f44336'
+            ]
+        ];
+    }
+
+    protected function thongKeTheoHocKy($maSV)
+    {
+        // Giả sử học kỳ là 6 tháng gần nhất
+        $startSemester = Carbon::now()->subMonths(6)->startOfMonth();
+        $endSemester = Carbon::now();
+
+        return $this->thongKeTheoKhoang($maSV, $startSemester, $endSemester);
+    }
+
+    // 
 public function soLuongDiemDanhHomNay()
 {
     $homNay = Carbon::today()->toDateString();

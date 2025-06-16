@@ -21,24 +21,40 @@ class DuLieuMauSeeder extends Seeder
         ]);
 
         // 2. Tạo 100 sinh viên và các dữ liệu liên quan
-        for ($i = 1; $i <= 100; $i++) {
-            $id = DB::table('sinh_viens')->insertGetId([
-                'hoTen' => 'Sinh viên ' . $i,
-                'gioiTinh' => $i % 2 == 0 ? 'Nam' : 'Nữ',
-                'ngaySinh' => now()->subYears(rand(18, 24))->toDateString(),
-                'email' => "sv{$i}@example.com",
-                'soDienThoai' => '09' . rand(10000000, 99999999),
-                'diaChi' => 'Địa chỉ ' . $i,
-                'nganh' => 'Ngành ' . rand(1, 5),
-                'tenDangNhap' => "sinhvien{$i}",
-                'password' => bcrypt('matkhau123'),
-                'duLieuKhuonMat' => "face_data_{$i}",
-                'soDTGV' => '09' . rand(10000000, 99999999),
-                'tenGiangVien' => 'GV ' . $i,
-                'thoiGianTT' => '2024-01-01',
-                'viTri' => collect(['Front-end Developer', 'Back-end Developer', 'Fullstack', 'Tester','Graphic Design','Business analyst','Digital Marketing'])->random(),
-                'maTruong' => collect(['T01','T02','T03','T04','T05'])->random(),
-            ]);
+   for ($i = 1; $i <= 100; $i++) {
+    $id = DB::table('sinh_viens')->insertGetId([
+        'hoTen' => 'Sinh viên ' . $i,
+        'gioiTinh' => $i % 2 == 0 ? 'Nam' : 'Nữ',
+        'ngaySinh' => now()->subYears(rand(18, 24))->toDateString(),
+        'email' => "sv{$i}@example.com",
+        'soDienThoai' => '09' . rand(10000000, 99999999),
+        'diaChi' => 'Địa chỉ ' . $i,
+        'nganh' => 'Ngành ' . rand(1, 5),
+        'tenDangNhap' => "sinhvien{$i}",
+        'password' => bcrypt('matkhau123'),
+        'duLieuKhuonMat' => "face_data_{$i}",
+        'soDTGV' => '09' . rand(10000000, 99999999),
+        'tenGiangVien' => 'GV ' . $i,
+        'thoiGianTT' => '3 tháng',
+        'viTri' => collect([
+            'Front-end Developer', 
+            'Back-end Developer', 
+            'Fullstack', 
+            'Tester',
+            'Graphic Design',
+            'Business analyst',
+            'Digital Marketing'
+        ])->random(),
+        'maTruong' => collect(['T01','T02','T03','T04','T05'])->random(),
+        'kyThucTap' => collect([
+            'HK1 2023-2024',
+            'HK2 2023-2024',
+            'HK1 2024-2025',
+            'HK2 2024-2025'
+        ])->random(),
+    ]);
+
+
 
             // 3. Hồ sơ
             DB::table('ho_sos')->insert([
