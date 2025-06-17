@@ -17,6 +17,7 @@ Route::get('/sinhviens/diem-danh-hom-nay', [SinhVienController::class, 'getAllSi
 Route::get('/sinhviens/lay-danh-sach-sinh-vien', [SinhVienController::class, 'index']);
 Route::post('/sinhviens', [SinhVienController::class, 'store']);
 Route::get('/sinhviens/{maSV}', [SinhVienController::class, 'show']);
+Route::get('/sinhviens/lay-thong-tin-ho-so/{maSV}', [SinhVienController::class, 'showWithHoSo']);
 Route::delete('/sinhviens/{maSV}', [SinhVienController::class, 'destroy']);
 Route::put('/sinhviens/{maSV}', [SinhVienController::class, 'update']);
 
@@ -27,6 +28,8 @@ Route::put('/sinhviens/{maSV}', [SinhVienController::class, 'update']);
 // ho so route
 Route::get('/hoso/counths', [HoSoController::class, 'countHS']);
 Route::get('/hoso/lay-danh-sach-ho-so', [HoSoController::class, 'index']);
+Route::post('/sinhviens/duyet-ho-so/{maSV}', [HoSoController::class, 'duyetHoSo']);
+
 
 
 // task route

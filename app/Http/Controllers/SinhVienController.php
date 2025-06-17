@@ -179,6 +179,26 @@ public function store(Request $request)
     ]);
     }
 
+    public function showWithHoSo(string $maSV)
+{
+    $sinhVien = SinhVien::with(['truong', 'hoSo'])
+        ->where('maSV', $maSV)
+        ->first();
+
+    if (!$sinhVien) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Không tìm thấy sinh viên với mã: ' . $maSV
+        ], 404);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $sinhVien
+    ]);
+}
+
+
     /**
      * Update the specified resource in storage.
      */

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HoSo;
+use App\Models\SinhVien;
 use Illuminate\Http\Request;
 
 class HoSoController extends Controller
@@ -93,6 +94,38 @@ class HoSoController extends Controller
     {
         //
     }
+    public function duyetHoSo(Request $request, string $maSV)
+{
+    // Tìm sinh viên
+    $sinhVien = SinhVien::where('maSV', $maSV)->first();
+
+    if (!$sinhVien) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Không tìm thấy sinh viên với mã: ' . $maSV
+        ], 404);
+    }
+
+    // Tìm hồ sơ của sinh viên
+    $hoSo = HoSo::where('maSV', $maSV)->first();
+
+    if (!$hoSo) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Không tìm thấy hồ sơ của sinh viên với mã: ' . $maSV
+        ], 404);
+    }
+
+    // Cập nhật trạng thái
+    $hoSo->trangThai = 'Đã duyệt';
+    $hoSo->save();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Hồ sơ đã được duyệt thành công',
+        'data' => $hoSo
+    ]);
+}
 
     /**
      * Remove the specified resource from storage.
