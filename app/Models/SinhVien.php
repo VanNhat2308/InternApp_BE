@@ -65,6 +65,10 @@ public function diemDanhs()
     return $this->hasMany(DiemDanh::class, 'maSV', 'maSV');
 }
 
+public function taskComments()
+{
+    return $this->morphMany(TaskComment::class, 'user');
+}
 
 
 }

@@ -3,38 +3,55 @@
 return [
 
     'defaults' => [
-        'guard' => 'api',
-        'passwords' => 'users',
+        'guard' => 'api_sinhvien', // Guard mặc định (có thể đổi thành api_admin nếu muốn)
+        'passwords' => 'sinhviens',
     ],
 
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'sinhviens',
         ],
 
-        'api' => [
+        'api_sinhvien' => [
             'driver' => 'jwt',
-            'provider' => 'users',
+            'provider' => 'sinhviens',
+        ],
+
+        'api_admin' => [
+            'driver' => 'jwt',
+            'provider' => 'admins',
         ],
     ],
 
     'providers' => [
-        'users' => [
+        'sinhviens' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => App\Models\SinhVien::class,
+        ],
+
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
         ],
     ],
 
     'passwords' => [
-        'users' => [
-            'provider' => 'users',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+        'sinhviens' => [
+            'provider' => 'sinhviens',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'admins' => [
+            'provider' => 'admins',
+            'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
         ],
     ],
 
-    'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+    'password_timeout' => 10800,
 
 ];

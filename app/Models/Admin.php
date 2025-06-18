@@ -19,6 +19,10 @@ class Admin extends Model
     return $this->belongsToMany(HoSo::class, 'admin_ho_so', 'maAdmin', 'maHS');
 }
 
+public function taskComments()
+{
+    return $this->morphMany(TaskComment::class, 'user');
+}
 
 
 }

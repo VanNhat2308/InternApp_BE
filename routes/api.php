@@ -37,6 +37,8 @@ Route::post('/sinhviens/duyet-ho-so/{maSV}', [HoSoController::class, 'duyetHoSo'
 Route::get('/student/tasks', [TaskController::class, 'index']);
 Route::get('/student/tasks/countTask', [TaskController::class, 'countTasks']);
 Route::get('/tasks/{id}', [TaskController::class, 'show']);
+Route::put('/tasks/diem-so/{id}', [TaskController::class, 'updateDiemSo']);
+Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
 
 
 

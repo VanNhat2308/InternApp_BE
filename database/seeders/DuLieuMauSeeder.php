@@ -97,8 +97,10 @@ DB::table('bao_caos')->insert([
                 'maSV' => $id,
                 'tieuDe' => 'Task ' . ($i),
                 'noiDung' => 'Nội dung task ' . ($i),
+                'diemSo' => null,
+                'doUuTien' => collect(['Cao', 'Trung bình', 'Thấp'])->random(),
                 'hanHoanThanh' => now()->addDays($i + 7)->toDateString(),
-                'trangThai' => 'Chưa hoàn thành',
+                'trangThai' => collect(['Đã nộp', 'Chưa nộp', 'Nộp trễ'])->random(),
             ]);
 
             // 8. Điểm danh hôm qua và hôm nay
