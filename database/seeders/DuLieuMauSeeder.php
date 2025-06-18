@@ -82,14 +82,15 @@ class DuLieuMauSeeder extends Seeder
                 'trangThai' => $i % 2 == 0 ? 'Hoàn thành' : 'Chưa hoàn thành',
             ]);
 
-            // 6. Báo cáo
-            DB::table('bao_caos')->insert([
-                'maBC' => $i,
-                'maSV' => $id,
-                'loai' => "Báo cáo tuần " . ($i),
-                'ngayTao' => now()->addDays($i)->toDateString(),
-                'noiDung' => "Nội dung báo cáo tuần " . ($i),
-            ]);
+          // 6. Báo cáo
+DB::table('bao_caos')->insert([
+    'maBC' => $i,
+    'maSV' => $id,
+    'loai' => "Báo cáo tuần " . $i,
+    'ngayTao' => now()->addDays($i)->toDateString(),
+    'noiDung' => str_repeat("Đây là nội dung chi tiết của báo cáo tuần $i. ", 50), // khoảng 2000+ ký tự
+    'tepDinhKem' => 'baocaos/26017-68701-1-PB.pdf',
+]);
 
             // 7. Task
             DB::table('tasks')->insert([
@@ -118,8 +119,30 @@ class DuLieuMauSeeder extends Seeder
         'gio_ket_thuc' => $gioKetThuc,
         'trang_thai' => $trangThai,
         'ghi_chu' => $trangThai === 'late' ? 'Đến trễ so với giờ quy định' : 'Có mặt đúng giờ',
+         
     ]);
 }
         }
+
+        // Điểm danh thêm cho sinh viên có maSV = 1 trong 7 ngày gần đây
+$maSV = 1;
+for ($j = 0; $j < 7; $j++) {
+    $date = now()->subDays($j);
+    $randomHour = rand(7, 9);
+    $randomMinute = rand(0, 59);
+    $gioBatDau = sprintf('%02d:%02d:00', $randomHour, $randomMinute);
+    $gioKetThuc = '10:00:00';
+    $trangThai = strtotime($gioBatDau) > strtotime('08:00:00') ? 'late' : 'on_time';
+
+    DB::table('diem_danhs')->insert([
+        'maSV' => $maSV,
+        'ngay_diem_danh' => $date->toDateString(),
+        'gio_bat_dau' => $gioBatDau,
+        'gio_ket_thuc' => $gioKetThuc,
+        'trang_thai' => $trangThai,
+        'ghi_chu' => $trangThai === 'late' ? 'Đến trễ so với giờ quy định' : 'Có mặt đúng giờ',
+    ]);
+}
+
     }
 }

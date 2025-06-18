@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BaoCaoController;
 use App\Http\Controllers\DiemDanhController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HoSoController;
@@ -44,6 +45,7 @@ Route::get('/diem-danh/so-luong-hom-nay', [DiemDanhController::class, 'soLuongDi
 Route::get('/diem-danh/danh-sach-hom-nay', [DiemDanhController::class, 'danhSachSinhVienDiemDanhHomNay']);
 Route::get('/diem-danh/thong-ke-tuan', [DiemDanhController::class, 'thongKeTuanTruocVaHienTai']);
 Route::get('/diem-danh/thong-ke/{maSV}', [DiemDanhController::class, 'thongKeDiemDanh']);
+Route::get('/diem-danh/sinh-vien/{maSV}', [DiemDanhController::class, 'diemDanhTheoSinhVien']);
 
 
 
@@ -60,3 +62,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api'
 
 // file upload
 Route::post('/upload', [FileUploadController::class, 'upload']);
+
+
+// bao cao
+Route::get('/bao-cao', [BaoCaoController::class, 'danhSachBaoCao']);
+Route::get('/bao-cao/{maBC}', [BaoCaoController::class, 'chiTietBaoCao']);
+Route::delete('/bao-cao/{maBC}', [BaoCaoController::class, 'xoaBaoCao']);
+

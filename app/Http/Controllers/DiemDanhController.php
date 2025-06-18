@@ -82,7 +82,7 @@ public function danhSachSinhVienDiemDanhHomNay()
     // Lấy danh sách điểm danh hôm nay, phân trang 15 sinh viên mỗi lần
     $danhSach = DiemDanh::with('sinhVien')
         ->whereDate('ngay_diem_danh', $homNay)
-        ->paginate(15); // phân trang
+        ->paginate(10); // phân trang
 
     return response()->json([
         'status' => 'success',
@@ -143,5 +143,34 @@ public function thongKeTuanTruocVaHienTai()
 
     return response()->json($result);
 }
+
+   // Lấy toàn bộ dữ liệu điểm danh của một sinh viên theo mã sinh viên
+   public function diemDanhTheoSinhVien(Request $request, $maSV)
+{
+    $date = $request->query('date'); // yyyy-mm-dd
+    $perPage = $request->query('per_page', 10); // mặc định 10 bản ghi mỗi trang
+
+    $query = DiemDanh::with('sinhVien')->where('maSV', $maSV);
+
+    if ($date) {
+        $query->whereDate('ngay_diem_danh', $date);
+    }
+
+    $diemDanhList = $query->orderBy('ngay_diem_danh', 'desc')->paginate($perPage);
+
+    if ($diemDanhList->isEmpty()) {
+        return response()->json([
+            'message' => 'Không có dữ liệu điểm danh vào ngày này cho sinh viên.'
+        ], 404);
+    }
+
+    return response()->json([
+        'maSV' => $maSV,
+        'soBuoi' => $diemDanhList->total(),
+        'data' => $diemDanhList
+    ]);
+}
+
+
 
 }
