@@ -9,6 +9,25 @@ use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
+
+  public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'tieuDe' => 'required|string|max:255',
+            'noiDung' => 'required|string',
+            'maSV' => 'required|string|exists:sinh_viens,maSV',
+            'doUuTien' => 'required|in:Thấp,Trung bình,Cao',
+            'hanHoanThanh' => 'required|date',
+        ]);
+
+        $task = Task::create($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Tạo task thành công',
+            'data' => $task,
+        ], 201);
+    }
     // GET /api/student/tasks?id=1
     // public function index(Request $request)
     // {
@@ -96,5 +115,6 @@ public function destroy($id)
         'message' => 'Xóa task thành công!'
     ]);
 }
+
 
 }

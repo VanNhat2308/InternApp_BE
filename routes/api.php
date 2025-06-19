@@ -38,6 +38,7 @@ Route::get('/student/tasks', [TaskController::class, 'index']);
 Route::get('/student/tasks/countTask', [TaskController::class, 'countTasks']);
 Route::get('/tasks/{id}', [TaskController::class, 'show']);
 Route::put('/tasks/diem-so/{id}', [TaskController::class, 'updateDiemSo']);
+Route::post('/tasks', [TaskController::class, 'store']);
 Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
 
 

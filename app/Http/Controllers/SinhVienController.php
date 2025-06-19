@@ -58,6 +58,11 @@ public function getAllSinhVienDiemDanhHomNay()
 
 public function index(Request $request)
 {
+    if ($request->query('all')) {
+        $students = SinhVien::all();
+        return response()->json(['data' => $students]);
+    }
+
     $perPage = $request->input('per_page', 10);
     $search = $request->input('search');
     $viTri = array_filter(explode(',', $request->input('vi_tri', '')));
