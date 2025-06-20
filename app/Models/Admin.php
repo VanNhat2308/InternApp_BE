@@ -8,8 +8,9 @@ class Admin extends Model
 {
     protected $table = 'admin';        // Tên bảng
     protected $primaryKey = 'maAdmin'; // Khóa chính
-    public $incrementing = false;      // Không tự tăng
-    protected $keyType = 'string';     // Kiểu khóa chính
+    public $incrementing = true;       // vì là số nguyên tự tăng
+    protected $keyType = 'int';
+
     public $timestamps = true;         // Có timestamps
 
     protected $fillable = ['maAdmin', 'matKhau', 'email', 'hoTen'];

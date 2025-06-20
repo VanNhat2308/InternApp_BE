@@ -17,6 +17,7 @@ Route::get('/sinhviens/danh-sach-diem-danh', [SinhVienController::class, 'getAll
 Route::get('/sinhviens/danh-sach-diem-danh/{maSv}', [SinhVienController::class, 'getSinhVienDiemDanh']);
 Route::get('/sinhviens/diem-danh-hom-nay', [SinhVienController::class, 'getAllSinhVienDiemDanhHomNay']);
 Route::get('/sinhviens/lay-danh-sach-sinh-vien', [SinhVienController::class, 'index']);
+Route::get('/sinhviens/{maSV}', [SinhVienController::class, 'getSinhVien']);
 Route::post('/sinhviens', [SinhVienController::class, 'store']);
 Route::get('/sinhviens/{maSV}', [SinhVienController::class, 'show']);
 Route::get('/sinhviens/lay-thong-tin-ho-so/{maSV}', [SinhVienController::class, 'showWithHoSo']);

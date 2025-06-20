@@ -69,6 +69,14 @@ public function taskComments()
 {
     return $this->morphMany(TaskComment::class, 'user');
 }
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'from_id')->where('from_role', 'sinhvien');
+    }
 
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'to_id')->where('to_role', 'sinhvien');
+    }
 
 }

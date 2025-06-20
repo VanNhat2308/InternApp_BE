@@ -264,4 +264,20 @@ public function store(Request $request)
         'message' => 'Xóa sinh viên thành công',
     ], 200);
 }
+
+ public function getSinhVien($maSV)
+    {
+        $sinhVien = SinhVien::where('maSV', $maSV)->first();
+
+        if (!$sinhVien) {
+            return response()->json([
+                'message' => 'Không tìm thấy sinh viên',
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Lấy thông tin sinh viên thành công',
+            'data' => $sinhVien,
+        ]);
+    }
 }
