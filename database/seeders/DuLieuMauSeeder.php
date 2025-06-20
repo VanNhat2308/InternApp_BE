@@ -75,12 +75,16 @@ class DuLieuMauSeeder extends Seeder
 
             // 5. Lịch
             DB::table('lichs')->insert([
-                'maLich' => $i,
-                'maSV' => $id,
-                'ngay' => now()->addDays($i)->toDateString(),
-                'noiDung' => "Lịch làm việc ngày " . ($i),
-                'trangThai' => $i % 2 == 0 ? 'Hoàn thành' : 'Chưa hoàn thành',
-            ]);
+        'maLich' => 'LICH' . str_pad($i, 3, '0', STR_PAD_LEFT),
+        'maSV' => $id, // hoặc random trong danh sách sinh viên
+        'ngay' => now()->startOfWeek()->addDays($i)->toDateString(), // phân bổ đều các ngày
+        'time' => $i % 2 == 0 ? '08:00' : '13:00',
+        'duration' => 4,
+        'noiDung' => "Lịch làm việc ngày " . ($i),
+        'trangThai' => $i % 2 == 0 ? 'Đã học' : 'Đã nghỉ',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
 
           // 6. Báo cáo
 DB::table('bao_caos')->insert([

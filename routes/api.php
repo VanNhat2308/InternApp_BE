@@ -5,6 +5,7 @@ use App\Http\Controllers\BaoCaoController;
 use App\Http\Controllers\DiemDanhController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HoSoController;
+use App\Http\Controllers\LichController;
 use App\Http\Controllers\SinhVienController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -72,3 +73,9 @@ Route::get('/bao-cao', [BaoCaoController::class, 'danhSachBaoCao']);
 Route::get('/bao-cao/{maBC}', [BaoCaoController::class, 'chiTietBaoCao']);
 Route::delete('/bao-cao/{maBC}', [BaoCaoController::class, 'xoaBaoCao']);
 
+// lich
+Route::get('/lich/theo-tuan', [LichController::class, 'LichTheoTuan']);
+Route::get('/lich/theo-thang', [LichController::class, 'lichTheoThang']);
+Route::post('/lich', [LichController::class, 'taoLich']);
+Route::delete('/lich/{id}', [LichController::class, 'xoaTheoId']);
+Route::delete('/lich/sinhvien/{maSV}', [LichController::class, 'xoaTheoMaSV']);

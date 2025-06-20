@@ -14,13 +14,16 @@ class Lich extends Model
     public $incrementing = false;      // Vì khóa chính là string
     protected $keyType = 'string';
 
-    protected $fillable = [
-        'maLich',
-        'ngay',
-        'noiDung',
-        'trangThai',
-        'maSV',
-    ];
+protected $fillable = [
+    'maLich',
+    'ngay',
+    'time',        // thêm nếu dùng giờ bắt đầu
+    'duration',    // thêm nếu dùng số giờ kéo dài
+    'noiDung',
+    'trangThai',
+    'maSV',
+];
+
 
     public function sinhVien()
     {
