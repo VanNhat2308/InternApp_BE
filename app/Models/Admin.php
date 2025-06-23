@@ -4,7 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Admin extends Model
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+
+class Admin extends Authenticatable implements JWTSubject
 {
     protected $table = 'admin';        // Tên bảng
     protected $primaryKey = 'maAdmin'; // Khóa chính
@@ -14,6 +17,23 @@ class Admin extends Model
     public $timestamps = true;         // Có timestamps
 
     protected $fillable = ['maAdmin', 'matKhau', 'email', 'hoTen'];
+    protected $hidden = [
+    'matKhau', 'password', 'remember_token',];
+    
+
+
+    public function getAuthPassword()
+{
+    return $this->matKhau;
+}
+
+public function getJWTIdentifier() {
+        return $this->getKey();
+}
+
+public function getJWTCustomClaims() {
+        return ['role' => 'admin'];
+}
 
  public function hoSos()
 {

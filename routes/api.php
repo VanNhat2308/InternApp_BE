@@ -60,8 +60,9 @@ Route::get('/test', function () {
 
 
 // auth provider
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
+Route::post('/login/admin', [AuthController::class, 'loginAdmin']);
+Route::post('/login/sinhvien', [AuthController::class, 'loginSinhvien']);
+Route::post('/logout', [AuthController::class, 'logout']);
 
 
 

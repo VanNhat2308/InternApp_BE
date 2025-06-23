@@ -2,10 +2,14 @@
 
 namespace App\Models;
 use App\Models\Task;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SinhVien extends Model
+class SinhVien extends Authenticatable implements JWTSubject
 {
      use HasFactory;
 
@@ -34,7 +38,31 @@ class SinhVien extends Model
         'kyThucTap',
         'maTruong',
     ];
+    protected $hidden = [
+     'password', 'remember_token',
+];
 
+  public function getAuthIdentifierName()
+    {
+        return 'tenDangNhap';
+    }
+
+    // Laravel mặc định dùng cột `password`, nên override:
+public function getAuthPassword()
+{
+    return $this->password; 
+}
+
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return ['role' => 'sinhvien'];
+    }
     public function truong()
     {
         return $this->belongsTo(Truong::class, 'maTruong', 'maTruong');
