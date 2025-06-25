@@ -150,7 +150,7 @@ class DuLieuMauSeeder extends Seeder
             ]);
         }
 
-        DB::table('admin')->insert([
+    DB::table('admin')->insert([
     'maAdmin' => 1,
     'matKhau' => bcrypt('admin123'), // nhớ dùng bcrypt nếu bạn đang login bằng Laravel Auth
     'email' => 'admin@example.com',

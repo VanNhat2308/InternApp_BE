@@ -21,15 +21,16 @@ class Message extends Model
 }
 
 
-    public function receiver()
-    {
-        if ($this->to_role === 'sinhvien') {
-            return $this->belongsTo(SinhVien::class, 'to_id');
-        } elseif ($this->to_role === 'admin') {
-            return $this->belongsTo(Admin::class, 'to_id');
-        }
-        return null;
-    }
+  public function sinhvienReceiver()
+{
+    return $this->belongsTo(SinhVien::class, 'to_id');
+}
+
+public function adminReceiver()
+{
+    return $this->belongsTo(Admin::class, 'to_id');
+}
+
 
     public function attachments()
     {
@@ -40,5 +41,8 @@ public function conversation()
     return $this->belongsTo(Conversation::class);
 }
 
+protected $casts = [
+    'is_read' => 'boolean',
+];
 
 }

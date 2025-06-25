@@ -87,6 +87,7 @@ Route::delete('/lich/sinhvien/{maSV}', [LichController::class, 'xoaTheoMaSV']);
 //message
 
 Route::get('/messages/feedback-panel', [MessageController::class, 'feedbackList']);
+Route::get('/messages/conversation/{id}', [MessageController::class, 'getMessages']);
 
 
 // pusher
