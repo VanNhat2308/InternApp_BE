@@ -6,12 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-       Schema::create('conversations', function (Blueprint $table) {
+        Schema::create('conversations', function (Blueprint $table) {
             $table->id();
 
             $table->enum('user1_role', ['sinhvien', 'admin'])->index();
@@ -21,15 +18,15 @@ return new class extends Migration
             $table->unsignedBigInteger('user2_id');
 
             $table->unsignedBigInteger('last_message_id')->nullable();
-            $table->timestamp('updated_at')->useCurrent();
 
-            $table->foreign('last_message_id')->references('id')->on('messages')->onDelete('set null');
+            $table->timestamps(); 
+
+            $table->foreign('last_message_id')
+                ->references('id')->on('messages')
+                ->onDelete('set null');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('conversations');

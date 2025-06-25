@@ -160,83 +160,92 @@ class DuLieuMauSeeder extends Seeder
 ]);
 
 
-          // 9. Tạo nhiều cuộc hội thoại và tin nhắn mẫu giữa sinh viên và admin
-        $adminId = 1; // Giả sử admin có id = 1
-                for ($sinhvienId = 1; $sinhvienId <= 10; $sinhvienId++) {
-            // Tạo hội thoại
-            $conversationId = DB::table('conversations')->insertGetId([
-                'user1_role' => 'sinhvien',
-                'user1_id' => $sinhvienId,
-                'user2_role' => 'admin',
-                'user2_id' => $adminId,
-                'updated_at' => now(),
-            ]);
+     $adminId = 1; // Giả sử admin có id = 1
 
-            // Sinh viên nhắn trước
-            $message1 = DB::table('messages')->insertGetId([
-                'from_role' => 'sinhvien',
-                'from_id' => $sinhvienId,
-                'to_role' => 'admin',
-                'to_id' => $adminId,
-                'conversation_id' => $conversationId,
-                'content' => "Thầy ơi em là sinh viên $sinhvienId có vài thắc mắc về task.",
-                'type' => 'text',
-                'is_read' => false,
-                'created_at' => now(),
-            ]);
+for ($sinhvienId = 1; $sinhvienId <= 10; $sinhvienId++) {
+    // Tạo cuộc hội thoại
+    $conversationId = DB::table('conversations')->insertGetId([
+        'user1_role' => 'sinhvien',
+        'user1_id' => $sinhvienId,
+        'user2_role' => 'admin',
+        'user2_id' => $adminId,
+        'updated_at' => now(),
+    ]);
 
-            // Admin trả lời
-            $message2 = DB::table('messages')->insertGetId([
-                'from_role' => 'admin',
-                'from_id' => $adminId,
-                'to_role' => 'sinhvien',
-                'to_id' => $sinhvienId,
-                'conversation_id' => $conversationId,
-                'content' => "Chào em sinh viên $sinhvienId, thầy đã nhận được tin nhắn.",
-                'type' => 'text',
-                'is_read' => false,
-                'created_at' => now()->addMinutes(2),
-            ]);
+    $now = now();
 
-            // Gửi thêm vài tin nhắn nữa để mô phỏng hội thoại thực tế
-            for ($j = 1; $j <= 2; $j++) {
-                DB::table('messages')->insert([
-                    'from_role' => 'sinhvien',
-                    'from_id' => $sinhvienId,
-                    'to_role' => 'admin',
-                    'to_id' => $adminId,
-                    'conversation_id' => $conversationId,
-                    'content' => "Em đang làm phần $j của task ạ.",
-                    'type' => 'text',
-                    'is_read' => false,
-                    'created_at' => now()->addMinutes(3 + $j),
-                ]);
+    // 1. Sinh viên gửi tin nhắn đầu tiên
+    $message1 = DB::table('messages')->insertGetId([
+        'from_role' => 'sinhvien',
+        'from_id' => $sinhvienId,
+        'to_role' => 'admin',
+        'to_id' => $adminId,
+        'conversation_id' => $conversationId,
+        'content' => "Thầy ơi em là sinh viên $sinhvienId có vài thắc mắc về task.",
+        'type' => 'text',
+        'is_read' => false,
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
 
-                DB::table('messages')->insert([
-                    'from_role' => 'admin',
-                    'from_id' => $adminId,
-                    'to_role' => 'sinhvien',
-                    'to_id' => $sinhvienId,
-                    'conversation_id' => $conversationId,
-                    'content' => "Em cứ tiếp tục nhé, thầy đang theo dõi.",
-                    'type' => 'text',
-                    'is_read' => false,
-                    'created_at' => now()->addMinutes(5 + $j),
-                ]);
-            }
+    // 2. Admin trả lời
+    $message2 = DB::table('messages')->insertGetId([
+        'from_role' => 'admin',
+        'from_id' => $adminId,
+        'to_role' => 'sinhvien',
+        'to_id' => $sinhvienId,
+        'conversation_id' => $conversationId,
+        'content' => "Chào em sinh viên $sinhvienId, thầy đã nhận được tin nhắn.",
+        'type' => 'text',
+        'is_read' => false,
+        'created_at' => $now->copy()->addMinutes(2),
+        'updated_at' => $now->copy()->addMinutes(2),
+    ]);
 
-            // Cập nhật last_message_id
-            DB::table('conversations')->where('id', $conversationId)->update([
-                'last_message_id' => $message2,
-            ]);
+    // 3. Gửi thêm tin nhắn mô phỏng hội thoại
+    for ($j = 1; $j <= 2; $j++) {
+        DB::table('messages')->insert([
+            'from_role' => 'sinhvien',
+            'from_id' => $sinhvienId,
+            'to_role' => 'admin',
+            'to_id' => $adminId,
+            'conversation_id' => $conversationId,
+            'content' => "Em đang làm phần $j của task ạ.",
+            'type' => 'text',
+            'is_read' => false,
+            'created_at' => $now->copy()->addMinutes(3 + $j),
+            'updated_at' => $now->copy()->addMinutes(3 + $j),
+        ]);
 
-            // File đính kèm (chỉ gắn cho message đầu tiên)
-            DB::table('attachments')->insert([
-                'message_id' => $message1,
-                'file_url' => "cvs/7D5GAiOG13sWOkWUdnJUUgNCnb7sXbkivxLYLTEE.pdf",
-                'file_type' => 'pdf',
-            ]);
-        }
+        DB::table('messages')->insert([
+            'from_role' => 'admin',
+            'from_id' => $adminId,
+            'to_role' => 'sinhvien',
+            'to_id' => $sinhvienId,
+            'conversation_id' => $conversationId,
+            'content' => "Em cứ tiếp tục nhé, thầy đang theo dõi.",
+            'type' => 'text',
+            'is_read' => false,
+            'created_at' => $now->copy()->addMinutes(5 + $j),
+            'updated_at' => $now->copy()->addMinutes(5 + $j),
+        ]);
+    }
+
+    // 4. Cập nhật last_message_id cho cuộc trò chuyện
+    DB::table('conversations')->where('id', $conversationId)->update([
+        'last_message_id' => $message2,
+        'updated_at' => now(),
+    ]);
+
+    // 5. Đính kèm file cho message đầu tiên
+    DB::table('attachments')->insert([
+        'message_id' => $message1,
+        'file_url' => 'cvs/7D5GAiOG13sWOkWUdnJUUgNCnb7sXbkivxLYLTEE.pdf',
+        'file_type' => 'pdf',
+        'uploaded_at' => now(),
+    ]);
+}
+
 
             
     

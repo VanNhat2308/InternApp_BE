@@ -6,6 +6,7 @@ use App\Http\Controllers\DiemDanhController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HoSoController;
 use App\Http\Controllers\LichController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SinhVienController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -81,3 +82,13 @@ Route::get('/lich/theo-thang', [LichController::class, 'lichTheoThang']);
 Route::post('/lich', [LichController::class, 'taoLich']);
 Route::delete('/lich/{id}', [LichController::class, 'xoaTheoId']);
 Route::delete('/lich/sinhvien/{maSV}', [LichController::class, 'xoaTheoMaSV']);
+
+
+//message
+
+Route::get('/messages/feedback-panel', [MessageController::class, 'feedbackList']);
+
+
+// pusher
+Route::post('/messages', [MessageController::class, 'store']);
+Route::get('/conversations/{id}/messages', [MessageController::class, 'getMessages']);

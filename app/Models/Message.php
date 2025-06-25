@@ -1,4 +1,5 @@
-<?// app/Models/Message.php
+<?php
+
 
 namespace App\Models;
 
@@ -7,18 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Message extends Model
 {
     protected $fillable = [
-        'from_role', 'from_id', 'to_role', 'to_id', 'content', 'type', 'is_read',
+        'from_role', 'from_id', 'to_role', 'to_id','conversation_id' ,'content', 'type', 'is_read',
     ];
 
-    public function sender()
-    {
-        if ($this->from_role === 'sinhvien') {
-            return $this->belongsTo(SinhVien::class, 'from_id');
-        } elseif ($this->from_role === 'admin') {
-            return $this->belongsTo(Admin::class, 'from_id');
-        }
-        return null;
-    }
+   public function sinhvienSender()
+{
+    return $this->belongsTo(SinhVien::class, 'from_id');
+}
+   public function AdminSender()
+{
+    return $this->belongsTo(Admin::class, 'from_id');
+}
+
 
     public function receiver()
     {
@@ -34,4 +35,10 @@ class Message extends Model
     {
         return $this->hasMany(Attachment::class);
     }
+public function conversation()
+{
+    return $this->belongsTo(Conversation::class);
+}
+
+
 }
