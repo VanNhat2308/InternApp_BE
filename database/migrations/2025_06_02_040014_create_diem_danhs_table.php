@@ -18,10 +18,8 @@ return new class extends Migration
             $table->time('gio_bat_dau')->nullable();
             $table->time('gio_ket_thuc')->nullable();
             $table->enum('trang_thai', ['on_time', 'absent', 'late'])->default('on_time');
-
             $table->string('ghi_chu')->nullable();
             $table->timestamps();
-
             $table->foreign('maSV')->references('maSV')->on('sinh_viens')->onDelete('cascade');
         });
     }

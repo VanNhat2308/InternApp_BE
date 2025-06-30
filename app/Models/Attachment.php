@@ -1,5 +1,4 @@
 <?php
-// app/Models/Attachment.php
 
 namespace App\Models;
 
