@@ -77,7 +77,7 @@ public function getAuthPassword()
 }
 public function nhatKy()
 {
-    return $this->hasOne(NhatKy::class, 'maSV', 'maSV');
+    return $this->hasMany(NhatKy::class, 'maSV', 'maSV');
 }
 public function baoCao()
 {

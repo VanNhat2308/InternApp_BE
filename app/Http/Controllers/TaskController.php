@@ -9,8 +9,19 @@ use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
+//  Tổng số task
+    public function tongSoTaskTheoSinhVien($maSV)
+    {
+        $tong = DB::table('tasks')->where('maSV', $maSV)->count();
 
-  public function store(Request $request)
+        return response()->json([
+            'maSV' => $maSV,
+            'tong_so_task' => $tong,
+        ]);
+    }
+
+
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'tieuDe' => 'required|string|max:255',
@@ -51,70 +62,70 @@ class TaskController extends Controller
     //         'data' => $tasks
     //     ]);
     // }
-        // GET /api/student/tasks/countTask
-        public function countTasks()
-        {
-            $taskCount = Task::count();
-            return response()->json([
+    // GET /api/student/tasks/countTask
+    public function countTasks()
+    {
+        $taskCount = Task::count();
+        return response()->json(
+            [
                 'status' => 'success',
-                'total_task' => $taskCount]
-            );
-
-        }
-
-public function show($id){
-    $task = Task::with('sinhVien')->find($id);
-
-    if (!$task) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Task không tồn tại'
-        ], 404);
+                'total_task' => $taskCount
+            ]
+        );
     }
 
-    return response()->json([
-        'status' => 'success',
-        'data' => $task
-    ]);
-}
+    public function show($id)
+    {
+        $task = Task::with('sinhVien')->find($id);
 
-public function index(Request $request)
-{
-    $search = $request->input('search');
+        if (!$task) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Task không tồn tại'
+            ], 404);
+        }
 
-    $tasks = Task::with('sinhVien') // Eager loading tránh N+1
-        ->when($search, function ($query, $search) {
-            return $query->where('tieuDe', 'like', '%' . $search . '%');
-        })
-        ->orderBy('created_at', 'desc')
-        ->paginate(12);
+        return response()->json([
+            'status' => 'success',
+            'data' => $task
+        ]);
+    }
 
-    return response()->json($tasks);
-}
-public function updateDiemSo(Request $request, $id)
-{
-    $request->validate([
-        'diemSo' => 'required|numeric|min:0|max:10'  // hoặc tùy theo yêu cầu
-    ]);
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
 
-    $task = Task::findOrFail($id);
-    $task->diemSo = $request->input('diemSo');
-    $task->save();
+        $tasks = Task::with('sinhVien') // Eager loading tránh N+1
+            ->when($search, function ($query, $search) {
+                return $query->where('tieuDe', 'like', '%' . $search . '%');
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
 
-    return response()->json([
-        'message' => 'Cập nhật điểm số thành công!',
-        'task' => $task
-    ]);
-}
-public function destroy($id)
-{
-    $task = Task::findOrFail($id); // nếu không tìm thấy sẽ tự trả về lỗi 404
-    $task->delete();
+        return response()->json($tasks);
+    }
+    public function updateDiemSo(Request $request, $id)
+    {
+        $request->validate([
+            'diemSo' => 'required|numeric|min:0|max:10'  // hoặc tùy theo yêu cầu
+        ]);
 
-    return response()->json([
-        'message' => 'Xóa task thành công!'
-    ]);
-}
+        $task = Task::findOrFail($id);
+        $task->diemSo = $request->input('diemSo');
+        $task->save();
 
+        return response()->json([
+            'message' => 'Cập nhật điểm số thành công!',
+            'task' => $task
+        ]);
+    }
+    public function destroy($id)
+    {
+        $task = Task::findOrFail($id); // nếu không tìm thấy sẽ tự trả về lỗi 404
+        $task->delete();
 
+        return response()->json([
+            'message' => 'Xóa task thành công!'
+        ]);
+    }
 }

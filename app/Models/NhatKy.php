@@ -22,8 +22,13 @@ class NhatKy extends Model
         'maSV',
     ];
 
-    public function sinhVien()
+public function sinhVien()
+{
+    return $this->belongsTo(SinhVien::class, 'maSV', 'maSV');
+}
+
+      public function chiTietNhatKies()
     {
-        return $this->belongsTo(SinhVien::class, 'maSV', 'maSV');
+        return $this->hasMany(ChiTietNhatKy::class, 'maNK', 'maNK');
     }
 }

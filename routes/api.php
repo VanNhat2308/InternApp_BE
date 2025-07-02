@@ -7,6 +7,7 @@ use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HoSoController;
 use App\Http\Controllers\LichController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\NhatKyController;
 use App\Http\Controllers\SinhVienController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,7 @@ Route::post('/sinhviens/duyet-ho-so/{maSV}', [HoSoController::class, 'duyetHoSo'
 // task route
 Route::get('/student/tasks', [TaskController::class, 'index']);
 Route::get('/student/tasks/countTask', [TaskController::class, 'countTasks']);
+Route::get('/student/tasks/tong-task-sv/{maSV}', [TaskController::class, 'tongSoTaskTheoSinhVien']);
 Route::get('/tasks/{id}', [TaskController::class, 'show']);
 Route::put('/tasks/diem-so/{id}', [TaskController::class, 'updateDiemSo']);
 Route::post('/tasks', [TaskController::class, 'store']);
@@ -50,9 +52,13 @@ Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
 Route::get('/diem-danh/so-luong-hom-nay', [DiemDanhController::class, 'soLuongDiemDanhHomNay']);
 Route::get('/diem-danh/danh-sach-hom-nay', [DiemDanhController::class, 'danhSachSinhVienDiemDanhHomNay']);
 Route::get('/diem-danh/thong-ke-tuan', [DiemDanhController::class, 'thongKeTuanTruocVaHienTai']);
+Route::get('/diem-danh/thong-ke-tuan-sv/{maSV}', [DiemDanhController::class, 'thongKeTuanTheoMaSV']);
 Route::get('/diem-danh/thong-ke/{maSV}', [DiemDanhController::class, 'thongKeDiemDanh']);
 Route::get('/diem-danh/sinh-vien/{maSV}', [DiemDanhController::class, 'diemDanhTheoSinhVien']);
-
+Route::get('/diem-danh/tong-gio-thuc-tap/{maSV}', [DiemDanhController::class, 'tinhTongGioThucTap']);
+Route::get('/diem-danh/thong-ke-chuyen-can/{maSV}', [DiemDanhController::class, 'tinhThongKeDiemDanh']);
+Route::post('/diem-danh/check-today', [DiemDanhController::class, 'checkTodayAttendance']);
+Route::post('/diem-danh/store-or-update', [DiemDanhController::class, 'storeOrUpdate']);
 
 
 Route::get('/test', function () {
@@ -93,3 +99,10 @@ Route::get('/messages/conversation/{id}', [MessageController::class, 'getMessage
 // pusher
 Route::post('/messages', [MessageController::class, 'store']);
 Route::get('/conversations/{id}/messages', [MessageController::class, 'getMessages']);
+
+
+// Nhat ky
+Route::get('/nhat-ky/details/{maSV}', [NhatKyController::class, 'index']);
+Route::post('/nhat-ky/store', [NhatKyController::class, 'store']);
+Route::post('/chi-tiet-nhat-ky/store', [NhatKyController::class, 'storeDetail']);
+Route::get('/nhat-ky/list/{maSV}', [NhatKyController::class, 'listDiary']);
