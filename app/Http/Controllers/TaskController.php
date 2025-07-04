@@ -91,6 +91,25 @@ class TaskController extends Controller
         ]);
     }
 
+    public function listTaskSV(Request $request)
+{
+    $search = $request->input('search');
+    $maSV = $request->input('maSV'); // lấy mã sinh viên từ query string
+
+    $tasks = Task::with('sinhVien')
+        ->when($maSV, function ($query, $maSV) {
+            return $query->where('maSV', $maSV);
+        })
+        ->when($search, function ($query, $search) {
+            return $query->where('tieuDe', 'like', '%' . $search . '%');
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(12);
+
+    return response()->json($tasks);
+}
+
+
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -128,4 +147,28 @@ class TaskController extends Controller
             'message' => 'Xóa task thành công!'
         ]);
     }
+    public function updateStatus(Request $request, $id)
+{
+    // Validate đầu vào
+    $request->validate([
+        'trangThai' => 'required|string',
+        'tepDinhKem' => 'nullable|string', // Có thể không có file đính kèm
+    ]);
+
+    // Tìm task theo ID
+    $task = Task::findOrFail($id);
+
+    // Cập nhật trạng thái và file đính kèm (nếu có)
+    $task->trangThai = $request->trangThai;
+    if ($request->filled('tepDinhKem')) {
+        $task->tepDinhKem = $request->tepDinhKem;
+    }
+    $task->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Cập nhật trạng thái task thành công',
+        'data' => $task
+    ]);
+}
 }

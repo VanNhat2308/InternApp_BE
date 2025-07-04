@@ -14,6 +14,8 @@ public function upload(Request $request)
     $request->validate([
         'avatar' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
         'cv' => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:2048',
+        'task' => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:2048',
+    
     ]);
 
     $paths = [];
@@ -25,6 +27,12 @@ public function upload(Request $request)
     if ($request->hasFile('cv')) {
         $paths['cv'] = $request->file('cv')->store('cvs', 'public');
     }
+
+    if ($request->hasFile('task')) {
+    $path = $request->file('task')->store('tasks', 'public'); // Lưu vào storage/app/public/tasks
+    $paths['task'] = $path;
+}
+
 
     return response()->json([
         'message' => 'Files uploaded successfully',

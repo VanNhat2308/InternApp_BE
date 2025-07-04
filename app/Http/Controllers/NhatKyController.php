@@ -10,17 +10,161 @@ use Illuminate\Support\Str;
 class NhatKyController extends Controller
 {
 
-        public function listDiary($maSV)
-    {
-        $nhatKys = NhatKy::where('maSV', $maSV)
-            ->orderBy('ngayTao', 'desc')
-            ->get(['maNK', 'ngayTao', 'noiDung', 'trangThai', 'maSV']);
+public function capNhatTrangThai($id)
+{
+    $nhatKy = NhatKy::findOrFail($id);
 
+    // Đảo trạng thái hiện tại
+    $nhatKy->trangThai = $nhatKy->trangThai === 'Hoàn thành' ? 'Chưa xong' : 'Hoàn thành';
+    $nhatKy->save();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Cập nhật trạng thái thành công',
+        'data' => $nhatKy,
+    ]);
+}
+
+public function themChiTiet(Request $request, $id)
+{
+    // Validate dữ liệu
+    $validated = $request->validate([
+        'tenCongViec' => 'required|string|max:255',
+        'ketQua' => 'required|string|max:1000',
+        'tienDo' => 'required|in:Hoàn thành,Chưa xong',
+    ]);
+
+    // Kiểm tra nhật ký có tồn tại
+    $nhatKy = NhatKy::findOrFail($id);
+
+    // Tạo mới chi tiết nhật ký
+    $chiTiet = new ChiTietNhatKy([
+        'tenCongViec' => $validated['tenCongViec'],
+        'ketQua' => $validated['ketQua'],
+        'tienDo' => $validated['tienDo'],
+    ]);
+
+    // Gắn vào nhật ký
+    $nhatKy->chiTietNhatKies()->save($chiTiet);
+
+    return response()->json([
+        'message' => 'Thêm chi tiết thành công',
+        'data' => $chiTiet,
+    ], 201);
+}
+
+  public function destroy($nhatKyId, $chiTietId)
+{
+ 
+
+
+    // Tìm chi tiết thuộc đúng nhật ký
+    $chiTiet = ChiTietNhatKy::where('id', $chiTietId)
+        ->where('maNK', $nhatKyId)
+        ->first();
+
+    if (!$chiTiet) {
         return response()->json([
-            'success' => true,
-            'data' => $nhatKys
-        ]);
+            'message' => 'Chi tiết nhật ký không tồn tại hoặc không thuộc nhật ký này',
+        ], 404);
     }
+
+    $chiTiet->delete();
+
+    return response()->json([
+        'message' => 'Xoá chi tiết thành công',
+    ]);
+}  
+public function updateChiTietNK(Request $request, $nhatKyId, $chiTietId)
+{
+    // Validate input
+    $request->validate([
+        'tenCongViec' => 'required|string|max:255',
+        'ketQua' => 'required|string',
+        'tienDo' => 'required|in:Hoàn thành,Chưa xong',
+    ]);
+
+    // Tìm chi tiết nhật ký theo ID và kiểm tra nó có thuộc nhật ký có idSlug không (bảo vệ)
+    $chiTiet = ChiTietNhatKy::where('id', $chiTietId)
+        ->where('maNK', $nhatKyId)
+        ->first();
+
+    if (!$chiTiet) {
+        return response()->json(['message' => 'Chi tiết nhật ký không tồn tại'], 404);
+    }
+
+    // Cập nhật dữ liệu
+    $chiTiet->update([
+        'tenCongViec' => $request->tenCongViec,
+        'ketQua' => $request->ketQua,
+        'tienDo' => $request->tienDo,
+    ]);
+
+    return response()->json([
+        'message' => 'Cập nhật thành công',
+        'data' => $chiTiet,
+    ]);
+}
+
+    public function storeOrUpdateChiTiet(Request $request, $maNK)
+{
+    $data = $request->validate([
+        'id' => 'nullable|exists:chi_tiet_nhat_kies,id', // Có thì cập nhật, không thì tạo mới
+        'tenCongViec' => 'required|string',
+        'ketQua' => 'nullable|string',
+        'tienDo' => 'required|in:Hoàn thành,Chưa xong',
+    ]);
+
+    $data['maNK'] = $maNK;
+
+    $chiTiet = ChiTietNhatKy::updateOrCreate(
+        ['id' => $data['id'] ?? null],
+        $data
+    );
+
+    return response()->json([
+        'message' => $request->id ? 'Cập nhật chi tiết thành công' : 'Thêm chi tiết thành công',
+        'data' => $chiTiet
+    ]);
+}
+
+    public function NhatKyTheoMaNK($maNK)
+{
+    $nhatKy = NhatKy::with('chiTietNhatKies')->find($maNK);
+
+    if (!$nhatKy) {
+        return response()->json([
+            'message' => 'Không tìm thấy nhật ký'
+        ], 404);
+    }
+
+    return response()->json([
+        'message' => 'Lấy nhật ký thành công',
+        'data' => $nhatKy
+    ]);
+}
+
+
+ public function listDiary(Request $request, $maSV)
+{
+    $keyword = $request->input('keyword');
+
+    $query = NhatKy::where('maSV', $maSV);
+
+    // Nếu có từ khóa tìm kiếm thì thêm điều kiện lọc
+    if (!empty($keyword)) {
+        $query->where('noiDung', 'like', '%' . $keyword . '%');
+    }
+
+    $nhatKys = $query->orderBy('ngayTao', 'desc')
+        ->get(['maNK', 'ngayTao', 'noiDung', 'trangThai', 'maSV']);
+
+    return response()->json([
+        'success' => true,
+        'data' => $nhatKys
+    ]);
+}
+
       public function index($maSV)
     {
         $nhatKys = NhatKy::with('chiTietNhatKies')

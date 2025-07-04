@@ -39,12 +39,14 @@ Route::post('/sinhviens/duyet-ho-so/{maSV}', [HoSoController::class, 'duyetHoSo'
 
 // task route
 Route::get('/student/tasks', [TaskController::class, 'index']);
+Route::get('/student/tasks-sinhVien', [TaskController::class, 'listTaskSV']);
 Route::get('/student/tasks/countTask', [TaskController::class, 'countTasks']);
 Route::get('/student/tasks/tong-task-sv/{maSV}', [TaskController::class, 'tongSoTaskTheoSinhVien']);
 Route::get('/tasks/{id}', [TaskController::class, 'show']);
 Route::put('/tasks/diem-so/{id}', [TaskController::class, 'updateDiemSo']);
 Route::post('/tasks', [TaskController::class, 'store']);
 Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
+Route::put('/tasks/{id}/update-status', [TaskController::class, 'updateStatus']);
 
 
 
@@ -103,6 +105,12 @@ Route::get('/conversations/{id}/messages', [MessageController::class, 'getMessag
 
 // Nhat ky
 Route::get('/nhat-ky/details/{maSV}', [NhatKyController::class, 'index']);
+Route::get('/nhat-ky/{maNK}', [NhatKyController::class, 'NhatKyTheoMaNK']);
 Route::post('/nhat-ky/store', [NhatKyController::class, 'store']);
 Route::post('/chi-tiet-nhat-ky/store', [NhatKyController::class, 'storeDetail']);
 Route::get('/nhat-ky/list/{maSV}', [NhatKyController::class, 'listDiary']);
+Route::post('/nhat-ky/store-or-update/{maNK}', [NhatKyController::class, 'storeOrUpdateChiTiet']);
+Route::put('/nhat-ky/{nhatKyId}/chi-tiet/{chiTietId}', [NhatKyController::class, 'updateChiTietNK']);
+Route::delete('/nhat-ky/{nhatKyId}/chi-tiet/{chiTietId}', [NhatKyController::class, 'destroy']);
+Route::post('/nhat-ky/{id}/chi-tiet', [NhatKyController::class, 'themChiTiet']);
+Route::put('/nhat-ky/{id}/trang-thai', [NhatKyController::class, 'capNhatTrangThai']);

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
-    protected $fillable = ['maSV', 'tieuDe', 'noiDung','diemSo','doUuTien' ,'hanHoanThanh', 'trangThai'];
+    protected $fillable = ['maSV', 'tieuDe', 'noiDung','diemSo','doUuTien' ,'hanHoanThanh', 'trangThai','tepDinhKem'];
 
     public function sinhVien()
     {
