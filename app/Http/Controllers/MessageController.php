@@ -11,6 +11,51 @@ use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
+
+
+    public function feedbackListForStudent(Request $request)
+{
+    $sinhvienId = $request->query('id'); // maSV của sinh viên hiện tại
+    $search = $request->query('search');
+
+    // Tin nhắn mới nhất từ mỗi admin gửi đến sinh viên
+    $latestMessages = Message::where([
+            ['to_role', '=', 'sinhvien'],
+            ['to_id', '=', $sinhvienId],
+            ['from_role', '=', 'admin'],
+        ])
+        ->latest('created_at')
+        ->get()
+        ->unique('from_id') // mỗi admin chỉ xuất hiện 1 lần
+        ->take(10);
+
+    // Nạp thông tin admin
+    $latestMessages->load('adminSender');
+
+    // Format lại phản hồi
+    $result = $latestMessages->map(function ($msg) {
+        $admin = $msg->adminSender;
+
+        return [
+            'id' => $admin->maAdmin ?? null,
+            'name' => $admin->hoTen ?? 'Không rõ',
+            'preview' => Str::limit($msg->content, 50),
+            'time' => $msg->created_at->diffForHumans(),
+            'unread' => !$msg->is_read,
+            'conversation_id' => $msg->conversation_id ?? null,
+        ];
+    });
+
+    // Lọc theo tên nếu có từ khóa
+    if ($search) {
+        $result = $result->filter(function ($item) use ($search) {
+            return Str::contains(Str::lower($item['name']), Str::lower($search));
+        });
+    }
+
+    return response()->json($result->values());
+}
+
     /**
      * 🔹 Lấy danh sách tin nhắn trong 1 cuộc hội thoại
      */
@@ -28,45 +73,45 @@ class MessageController extends Controller
      */
     public function feedbackList(Request $request)
     {
-        $adminId = 1;
-        $search = $request->query('search');
+       $adminId = $request->query('id'); // maAdmin của admin hiện tại
+    $search = $request->query('search');
 
-        // Tin nhắn mới nhất từ mỗi sinh viên gửi đến admin
-        $latestMessages = Message::where([
-                ['to_role', '=', 'admin'],
-                ['to_id', '=', $adminId],
-                ['from_role', '=', 'sinhvien'],
-            ])
-            ->latest('created_at')
-            ->get()
-            ->unique('from_id')  // chỉ lấy 1 sinh viên 1 lần
-            ->take(10);
+    // Tin nhắn mới nhất từ mỗi sinh viên gửi đến admin
+    $latestMessages = Message::where([
+            ['to_role', '=', 'admin'],
+            ['to_id', '=', $adminId],
+            ['from_role', '=', 'sinhvien'],
+        ])
+        ->latest('created_at')
+        ->get()
+        ->unique('from_id') // mỗi sinh viên chỉ xuất hiện 1 lần
+        ->take(10);
 
-        // Nạp thông tin sinh viên
-        $latestMessages->load('sinhvienSender');
+    // Nạp thông tin sinh viên
+    $latestMessages->load('sinhvienSender');
 
-        // Format lại dữ liệu phản hồi
-        $result = $latestMessages->map(function ($msg) {
-            $sinhvien = $msg->sinhvienSender;
+    // Format lại phản hồi
+    $result = $latestMessages->map(function ($msg) {
+        $sinhvien = $msg->sinhvienSender;
 
-            return [
-                'id' => $sinhvien->maSV ?? null,
-                'name' => $sinhvien->hoTen ?? 'Không rõ',
-                'preview' => Str::limit($msg->content, 50),
-                'time' => $msg->created_at->diffForHumans(),
-                'unread' => !$msg->is_read,
-                'conversation_id' => $msg->conversation_id ?? null,
-            ];
+        return [
+            'id' => $sinhvien->maSV ?? null,
+            'name' => $sinhvien->hoTen ?? 'Không rõ',
+            'preview' => \Illuminate\Support\Str::limit($msg->content, 50),
+            'time' => $msg->created_at->diffForHumans(),
+            'unread' => !$msg->is_read,
+            'conversation_id' => $msg->conversation_id ?? null,
+        ];
+    });
+
+    // Lọc theo tên nếu có từ khóa
+    if ($search) {
+        $result = $result->filter(function ($item) use ($search) {
+            return \Illuminate\Support\Str::contains(\Illuminate\Support\Str::lower($item['name']), \Illuminate\Support\Str::lower($search));
         });
+    }
 
-        // Lọc theo tên nếu có từ khóa
-        if ($search) {
-            $result = $result->filter(function ($item) use ($search) {
-                return Str::contains(Str::lower($item['name']), Str::lower($search));
-            });
-        }
-
-        return response()->json($result->values());
+    return response()->json($result->values());
     }
 
     /**
