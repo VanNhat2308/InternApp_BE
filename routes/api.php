@@ -9,6 +9,7 @@ use App\Http\Controllers\LichController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NhatKyController;
 use App\Http\Controllers\SinhVienController;
+use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
@@ -93,7 +94,6 @@ Route::delete('/lich/sinhvien/{maSV}', [LichController::class, 'xoaTheoMaSV']);
 
 
 //message
-
 Route::get('/messages/feedback-panel', [MessageController::class, 'feedbackList']);
 Route::get('/messages/conversation/{id}', [MessageController::class, 'getMessages']);
 
@@ -114,3 +114,8 @@ Route::put('/nhat-ky/{nhatKyId}/chi-tiet/{chiTietId}', [NhatKyController::class,
 Route::delete('/nhat-ky/{nhatKyId}/chi-tiet/{chiTietId}', [NhatKyController::class, 'destroy']);
 Route::post('/nhat-ky/{id}/chi-tiet', [NhatKyController::class, 'themChiTiet']);
 Route::put('/nhat-ky/{id}/trang-thai', [NhatKyController::class, 'capNhatTrangThai']);
+
+
+// comments
+Route::get('/task-comments/{task_id}', [TaskCommentController::class, 'index']);
+Route::post('/task-comments', [TaskCommentController::class, 'store']);

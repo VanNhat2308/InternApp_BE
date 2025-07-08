@@ -9,25 +9,20 @@ use Illuminate\Support\Facades\Auth;
 
 class TaskCommentController extends Controller
 {
-    public function store(Request $request)
+ public function store(Request $request)
 {
     $request->validate([
         'task_id' => 'required|exists:tasks,id',
         'noi_dung' => 'required|string',
+        'user_id' => 'required|integer',
+        'user_type' => 'required|string', // "App\Models\Admin" hoặc "App\Models\SinhVien"
     ]);
-
-    // Ưu tiên kiểm tra guard api_admin -> sau đó api_sinhvien
-    $user = Auth::guard('api_admin')->user() ?? Auth::guard('api_sinhvien')->user();
-
-    if (!$user) {
-        return response()->json(['message' => 'Không xác thực'], 401);
-    }
 
     $comment = TaskComment::create([
         'task_id'   => $request->task_id,
         'noi_dung'  => $request->noi_dung,
-        'user_id'   => $user->id,
-        'user_type' => get_class($user),
+        'user_id'   => $request->user_id,
+        'user_type' => $request->user_type,
     ]);
 
     return response()->json(['message' => 'Nhận xét đã được thêm', 'data' => $comment]);
@@ -36,7 +31,7 @@ class TaskCommentController extends Controller
 
     public function index($task_id)
     {
-        $comments = TaskComment::where('task_id', $task_id)->with('user')->latest()->get();
+        $comments = TaskComment::where('task_id', $task_id)->with('user') -> orderBy('created_at', 'asc') ->get();
         return response()->json($comments);
     }
 }
