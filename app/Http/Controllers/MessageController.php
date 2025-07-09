@@ -13,6 +13,24 @@ class MessageController extends Controller
 {
 
 
+    
+public function markAsRead(Request $request)
+{
+    $conversationId = $request->input('conversation_id');
+    $userId = $request->input('user_id');
+    $userRole = $request->input('user_role');
+
+    // Cập nhật tất cả các tin nhắn chưa đọc gửi đến user hiện tại
+    Message::where('conversation_id', $conversationId)
+        ->where('to_id', $userId)
+        ->where('to_role', $userRole)
+        ->where('is_read', false)
+        ->update(['is_read' => true]);
+
+    return response()->json(['message' => 'Đã cập nhật trạng thái is_read'], 200);
+}
+
+
     public function feedbackListForStudent(Request $request)
 {
     $sinhvienId = $request->query('id'); // maSV của sinh viên hiện tại

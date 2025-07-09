@@ -129,24 +129,12 @@ public function lichTheoThang(Request $request)
         ->select('maLich', 'ngay', 'time', 'duration')
         ->get();
 
-    // Tìm thứ Hai đầu tiên trong tháng
-    $firstMonday = Carbon::create($year, $month, 1)->next(Carbon::MONDAY);
-    if ($firstMonday->month != $month) {
-        $firstMonday = Carbon::create($year, $month, 1);
-    }
-
-    $result = $lich->map(function ($item) use ($firstMonday) {
-        $date = Carbon::parse($item->ngay);
-        $week = $date->lt($firstMonday)
-            ? 1
-            : floor($firstMonday->diffInDays($date) / 7) + 1;
-
+    $result = $lich->map(function ($item) {
         return [
             'id' => $item->maLich,
-            'day' => $date->format('D'),
+            'date' => Carbon::parse($item->ngay)->toDateString(), // YYYY-MM-DD
             'time' => $item->time,
             'duration' => $item->duration,
-            'week' => $week,
         ];
     });
 
