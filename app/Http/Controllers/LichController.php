@@ -150,7 +150,7 @@ public function taoLich(Request $request)
         'ca' => 'required|in:8:00-12:00,13:00-17:00',
         'year' => 'required|integer',
         'month' => 'required|integer',
-        'week' => 'required|integer',
+        'currentWeek' => 'required|in:-1,0,1',
     ]);
 
     $mapCa = [
@@ -166,28 +166,42 @@ public function taoLich(Request $request)
         'Fri' => Carbon::FRIDAY,
     ];
 
-    $firstDay = Carbon::createFromDate($request->year, $request->month, 1)->startOfMonth();
-    $thuNum = $thuToCarbon[$request->thu];
+    // 1. Xác định tuần hiện tại của hôm nay
+    $now = Carbon::now();
+    $firstDayOfMonth = Carbon::createFromDate($request->year, $request->month, 1)->startOfMonth();
 
-    // Tìm ngày trong tuần và tuần cụ thể
-    $ngay = $firstDay->copy()->next($thuNum);
-    while ($ngay->weekOfMonth < $request->week) {
+    // Tuần hiện tại tính từ ngày hôm nay
+    $todayWeekOfMonth = $now->weekOfMonth;
+
+    // Tuần mục tiêu
+    $targetWeek = $todayWeekOfMonth + $request->currentWeek;
+
+    if ($targetWeek < 1) {
+        return response()->json(['message' => 'Không thể thêm lịch ở tuần trước quá xa!'], 400);
+    }
+
+    // 2. Tìm ngày của thứ tương ứng trong tuần mục tiêu
+    $ngay = $firstDayOfMonth->copy()->next($thuToCarbon[$request->thu]);
+    while ($ngay->weekOfMonth < $targetWeek) {
         $ngay->addWeek();
     }
 
-    // Kiểm tra trùng lịch
+    // 3. Nếu thêm lịch ở tuần hiện tại, không được thêm vào ngày đã qua
+    if ($request->currentWeek == 0 && $ngay->lessThan($now->startOfDay())) {
+        return response()->json(['message' => 'Không thể thêm lịch vào ngày đã qua!'], 400);
+    }
+
+    // 4. Nếu đã tồn tại lịch
     $exist = Lich::where('maSV', $request->maSV)
         ->where('ngay', $ngay->toDateString())
         ->where('time', $mapCa[$request->ca]['time'])
         ->exists();
 
     if ($exist) {
-        return response()->json([
-            'message' => 'Lịch bị trùng khung giờ!',
-        ], 409);
+        return response()->json(['message' => 'Lịch bị trùng khung giờ!'], 409);
     }
 
-    // Tạo lịch mới
+    // 5. Lưu vào CSDL
     $lich = Lich::create([
         'maLich' => 'LICH' . strtoupper(uniqid()),
         'maSV' => $request->maSV,
@@ -203,6 +217,7 @@ public function taoLich(Request $request)
         'data' => $lich,
     ]);
 }
+
 
 
 
