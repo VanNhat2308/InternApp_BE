@@ -8,6 +8,25 @@ use Illuminate\Http\Request;
 
 class LichController extends Controller
 {
+   // Route: GET /api/schedule/check
+public function checkCa(Request $request)
+{
+    $type = $request->query('type'); // old hoặc new
+    $date = $request->query('date');
+    $ca = $request->query('ca');
+    $maSV = $request->query('maSV');
+
+    $exists = Lich
+        ::where('maSV', $maSV)
+        ->where('ngay', $date)
+        ->where('time', $ca)
+        ->exists();
+
+    return response()->json(['exists' => $exists]);
+}
+
+
+
 public function lichTheoTuan(Request $request)
 {
     $weekOffset = (int) $request->input('week', 0);
@@ -146,11 +165,8 @@ public function taoLich(Request $request)
 {
     $request->validate([
         'maSV' => 'required',
-        'thu' => 'required|in:Mon,Tue,Wed,Thu,Fri',
+        'ngay' => 'required|date',
         'ca' => 'required|in:8:00-12:00,13:00-17:00',
-        'year' => 'required|integer',
-        'month' => 'required|integer',
-        'currentWeek' => 'required|in:-1,0,1',
     ]);
 
     $mapCa = [
@@ -158,40 +174,15 @@ public function taoLich(Request $request)
         '13:00-17:00' => ['time' => '13:00', 'duration' => 4],
     ];
 
-    $thuToCarbon = [
-        'Mon' => Carbon::MONDAY,
-        'Tue' => Carbon::TUESDAY,
-        'Wed' => Carbon::WEDNESDAY,
-        'Thu' => Carbon::THURSDAY,
-        'Fri' => Carbon::FRIDAY,
-    ];
+    $ngay = Carbon::parse($request->ngay)->startOfDay();
+    $today = Carbon::today();
 
-    // 1. Xác định tuần hiện tại của hôm nay
-    $now = Carbon::now();
-    $firstDayOfMonth = Carbon::createFromDate($request->year, $request->month, 1)->startOfMonth();
-
-    // Tuần hiện tại tính từ ngày hôm nay
-    $todayWeekOfMonth = $now->weekOfMonth;
-
-    // Tuần mục tiêu
-    $targetWeek = $todayWeekOfMonth + $request->currentWeek;
-
-    if ($targetWeek < 1) {
-        return response()->json(['message' => 'Không thể thêm lịch ở tuần trước quá xa!'], 400);
-    }
-
-    // 2. Tìm ngày của thứ tương ứng trong tuần mục tiêu
-    $ngay = $firstDayOfMonth->copy()->next($thuToCarbon[$request->thu]);
-    while ($ngay->weekOfMonth < $targetWeek) {
-        $ngay->addWeek();
-    }
-
-    // 3. Nếu thêm lịch ở tuần hiện tại, không được thêm vào ngày đã qua
-    if ($request->currentWeek == 0 && $ngay->lessThan($now->startOfDay())) {
+    // Không cho thêm lịch quá khứ
+    if ($ngay->lt($today)) {
         return response()->json(['message' => 'Không thể thêm lịch vào ngày đã qua!'], 400);
     }
 
-    // 4. Nếu đã tồn tại lịch
+    // Kiểm tra trùng lịch
     $exist = Lich::where('maSV', $request->maSV)
         ->where('ngay', $ngay->toDateString())
         ->where('time', $mapCa[$request->ca]['time'])
@@ -201,7 +192,7 @@ public function taoLich(Request $request)
         return response()->json(['message' => 'Lịch bị trùng khung giờ!'], 409);
     }
 
-    // 5. Lưu vào CSDL
+    // Tạo lịch
     $lich = Lich::create([
         'maLich' => 'LICH' . strtoupper(uniqid()),
         'maSV' => $request->maSV,

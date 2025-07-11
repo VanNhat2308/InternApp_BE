@@ -87,6 +87,7 @@ Route::delete('/bao-cao/{maBC}', [BaoCaoController::class, 'xoaBaoCao']);
 
 // lich
 Route::get('/lich/theo-tuan', [LichController::class, 'LichTheoTuan']);
+Route::get('/schedule/check', [LichController::class, 'checkCa']);
 Route::get('/lich/theo-thang', [LichController::class, 'lichTheoThang']);
 Route::post('/lich', [LichController::class, 'taoLich']);
 Route::delete('/lich/{id}', [LichController::class, 'xoaTheoId']);
