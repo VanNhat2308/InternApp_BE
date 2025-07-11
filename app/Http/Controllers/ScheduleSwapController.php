@@ -1,0 +1,156 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Lich;
+use App\Models\ScheduleSwap;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+
+class ScheduleSwapController extends Controller
+{
+    // GET: Lấy danh sách đổi ca của sinh viên
+    public function index(Request $request)
+    {
+        $maSV = $request->query('maSV');
+
+        if (!$maSV) {
+            return response()->json(['message' => 'Thiếu mã sinh viên.'], 400);
+        }
+
+        $swaps = ScheduleSwap::where('maSV', $maSV)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($swaps);
+    }
+
+    // POST: Tạo yêu cầu đổi ca mới
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'maSV'        => 'required|exists:sinh_viens,maSV',
+            'maLich'      => 'required|exists:lichs,maLich',
+            'old_date'    => 'required|date',
+            'old_shift'   => 'required|string',
+            'change_type' => 'required|in:doi,nghi',
+            'reason'      => 'required|string',
+
+            // Nếu là đổi, yêu cầu thêm new_date và new_shift
+            'new_date'    => 'nullable|date',
+            'new_shift'   => 'nullable|string',
+        ]);
+
+        // Nếu là "doi" thì bắt buộc có new_date + new_shift
+        if ($validated['change_type'] === 'doi') {
+            if (empty($validated['new_date']) || empty($validated['new_shift'])) {
+                return response()->json([
+                    'message' => 'Vui lòng cung cấp ca mới để đổi.',
+                ], 422);
+            }
+        }
+
+        $swap = ScheduleSwap::create($validated);
+
+        return response()->json([
+            'message' => 'Gửi yêu cầu đổi ca thành công.',
+            'data'    => $swap
+        ], 201);
+    }
+    public function xuLyDoiLich($id)
+{
+    $swap = ScheduleSwap::find($id);
+
+    if (!$swap || $swap->status !== 'pending') {
+        return response()->json(['message' => 'Yêu cầu không hợp lệ'], 400);
+    }
+
+    DB::beginTransaction();
+    try {
+        // Xóa lịch cũ
+        $caTime = ['08:00-12:00' => '08:00', '13:00-17:00' => '13:00'];
+        $lich = Lich::where('maSV', $swap->maSV)
+            ->where('ngay', $swap->old_date)
+            ->where('time', $caTime[$swap->old_shift])
+            ->first();
+
+        if ($lich) {
+            $lich->delete();
+        }
+
+        // Tạo lịch mới nếu là 'doi'
+        if ($swap->change_type === 'doi') {
+            $mapCa = [
+                '08:00-12:00' => ['time' => '08:00', 'duration' => 4],
+                '13:00-17:00' => ['time' => '13:00', 'duration' => 4],
+            ];
+            Lich::create([
+                'maLich' => 'LICH' . strtoupper(uniqid()),
+                'maSV' => $swap->maSV,
+                'ngay' => $swap->new_date,
+                'time' => $mapCa[$swap->new_shift]['time'],
+                'duration' => $mapCa[$swap->new_shift]['duration'],
+                'noiDung' => 'Đổi lịch đã được duyệt',
+                'trangThai' => 'Chưa học',
+            ]);
+        }
+
+        $swap->status = 'approved';
+        $swap->save();
+
+        DB::commit();
+        return response()->json(['message' => 'Duyệt và đổi lịch thành công']);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['message' => 'Lỗi xử lý: ' . $e->getMessage()], 500);
+    }
+}
+
+    public function updateStatus(Request $request, $id)
+    {
+    $validated = $request->validate([
+        'status' => ['required', Rule::in(['approved', 'rejected'])],
+        'admin_note' => 'nullable|string',
+    ]);
+
+    $swap = ScheduleSwap::find($id);
+
+    if (!$swap) {
+        return response()->json(['message' => 'Yêu cầu đổi ca không tồn tại.'], 404);
+    }
+
+    if ($swap->status !== 'pending') {
+        return response()->json(['message' => 'Yêu cầu này đã được xử lý.'], 400);
+    }
+
+    if ($validated['status'] === 'approved') {
+        // Gọi hàm xử lý đổi lịch
+        $xuLyResult = $this->xuLyDoiLich($id);
+
+        // Nếu xử lý đổi lịch thất bại, dừng lại
+        if ($xuLyResult->getStatusCode() !== 200) {
+            return $xuLyResult;
+        }
+
+        // Ghi chú bổ sung (nếu có)
+        $swap->admin_note = $validated['admin_note'] ?? null;
+        $swap->save();
+
+        return response()->json([
+            'message' => 'Duyệt và đổi lịch thành công.',
+            'data' => $swap
+        ]);
+    }
+
+    // Trường hợp từ chối
+    $swap->status = 'rejected';
+    $swap->admin_note = $validated['admin_note'] ?? null;
+    $swap->save();
+
+    return response()->json([
+        'message' => 'Từ chối yêu cầu thành công.',
+        'data' => $swap
+    ]);
+}
+}

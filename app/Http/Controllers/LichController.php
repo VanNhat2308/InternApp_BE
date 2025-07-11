@@ -16,14 +16,17 @@ public function checkCa(Request $request)
     $ca = $request->query('ca');
     $maSV = $request->query('maSV');
 
-    $exists = Lich
-        ::where('maSV', $maSV)
+    $lich = Lich::where('maSV', $maSV)
         ->where('ngay', $date)
         ->where('time', $ca)
-        ->exists();
+        ->first();
 
-    return response()->json(['exists' => $exists]);
+    return response()->json([
+        'exists' => (bool) $lich,
+        'maLich' => $lich?->maLich // hoặc $lich->maLich nếu bạn có cột đó
+    ]);
 }
+
 
 
 

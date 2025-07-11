@@ -8,6 +8,7 @@ use App\Http\Controllers\HoSoController;
 use App\Http\Controllers\LichController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NhatKyController;
+use App\Http\Controllers\ScheduleSwapController;
 use App\Http\Controllers\SinhVienController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
@@ -122,3 +123,10 @@ Route::put('/nhat-ky/{id}/trang-thai', [NhatKyController::class, 'capNhatTrangTh
 // comments
 Route::get('/task-comments/{task_id}', [TaskCommentController::class, 'index']);
 Route::post('/task-comments', [TaskCommentController::class, 'store']);
+
+
+// swap schedule
+
+Route::get('/schedule-swaps', [ScheduleSwapController::class, 'index']);
+Route::post('/schedule-swaps', [ScheduleSwapController::class, 'store']);
+Route::put('/schedule-swaps/{id}/status', [ScheduleSwapController::class, 'updateStatus']);
