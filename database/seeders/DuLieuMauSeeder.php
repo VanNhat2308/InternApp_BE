@@ -13,11 +13,11 @@ class DuLieuMauSeeder extends Seeder
     {
         // 1. Thêm trường
         DB::table('truongs')->insert([
-            ['maTruong' => 'T01', 'tenTruong' => 'VLU', 'moTa' => 'Trường đào tạo công nghệ thông tin'],
-            ['maTruong' => 'T02', 'tenTruong' => 'UEF', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
-            ['maTruong' => 'T03', 'tenTruong' => 'HSU', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
-            ['maTruong' => 'T04', 'tenTruong' => 'UEH', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
-            ['maTruong' => 'T05', 'tenTruong' => 'UEL', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
+            ['maTruong' => 'VLU', 'tenTruong' => 'VLU', 'moTa' => 'Trường đào tạo công nghệ thông tin'],
+            ['maTruong' => 'UEF', 'tenTruong' => 'UEF', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
+            ['maTruong' => 'HSU', 'tenTruong' => 'HSU', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
+            ['maTruong' => 'UEH', 'tenTruong' => 'UEH', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
+            ['maTruong' => 'UEL', 'tenTruong' => 'UEL', 'moTa' => 'Trường chuyên về kinh tế và quản trị'],
         ]);
 
         // 2. Tạo 100 sinh viên và các dữ liệu liên quan
@@ -45,7 +45,7 @@ class DuLieuMauSeeder extends Seeder
                     'Business analyst',
                     'Digital Marketing'
                 ])->random(),
-                'maTruong' => collect(['T01', 'T02', 'T03', 'T04', 'T05'])->random(),
+                'maTruong' => collect(['UEH', 'VLU'])->random(),
                 'kyThucTap' => collect([
                     'HK1 2023-2024',
                     'HK2 2023-2024',

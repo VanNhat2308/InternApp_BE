@@ -113,12 +113,12 @@ public function store(Request $request)
 {
     // Bước 1: Xác thực dữ liệu
     $validated = $request->validate([
-        'maSV'           => 'required|string|unique:sinh_viens,maSV',
+        // 'maSV'           => 'required|string|unique:sinh_viens,maSV',
         'tenDangNhap'    => 'required|string|unique:sinh_viens,tenDangNhap',
         'password'       => 'required|string|min:6',
         'hoTen'          => 'required|string|max:255',
         'email'          => 'required|email|unique:sinh_viens,email',
-        'soDienThoai'    => 'nullable|string|max:15',
+        'soDienThoai'    => 'nullable|unique:sinh_viens,soDienThoai|string|max:15',
         'diaChi'         => 'nullable|string',
         'ngaySinh'       => 'nullable|date',
         'gioiTinh'       => 'nullable|in:Nam,Nữ,Khác',
@@ -129,14 +129,14 @@ public function store(Request $request)
         'tenGiangVien'   => 'nullable|string',
         'thoiGianTT'     => 'nullable|string',
         'viTri'          => 'nullable|string',
-         'maTruong' => 'required|exists:truongs,maTruong'
+        'maTruong' => 'required|exists:truongs,maTruong'
 // hoặc maTruong nếu khác
     ]);
 
     // Bước 2: Lưu sinh viên mới
     $password = $validated['password'] ?? 'pwd123';
     $sinhVien = SinhVien::create([
-        'maSV'           => $validated['maSV'],
+        // 'maSV'           => $validated['maSV'],
         'tenDangNhap'    => $validated['tenDangNhap'],
         'password'       => bcrypt($validated['password']),
         'hoTen'          => $validated['hoTen'],

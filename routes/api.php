@@ -12,6 +12,8 @@ use App\Http\Controllers\ScheduleSwapController;
 use App\Http\Controllers\SinhVienController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TruongController;
+use App\Http\Controllers\ViTriController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -130,3 +132,12 @@ Route::post('/task-comments', [TaskCommentController::class, 'store']);
 Route::get('/schedule-swaps', [ScheduleSwapController::class, 'index']);
 Route::post('/schedule-swaps', [ScheduleSwapController::class, 'store']);
 Route::put('/schedule-swaps/{id}/status', [ScheduleSwapController::class, 'updateStatus']);
+
+
+// Truong
+Route::get('/truongs', [TruongController::class, 'index']);
+Route::post('/truongs', [TruongController::class, 'store']);
+
+// Vitri
+Route::get('/vi-tris', [ViTriController::class, 'index']);
+Route::post('/vi-tris', [ViTriController::class, 'store']);
