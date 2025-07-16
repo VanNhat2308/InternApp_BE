@@ -136,8 +136,13 @@ Route::put('/schedule-swaps/{id}/status', [ScheduleSwapController::class, 'updat
 
 // Truong
 Route::get('/truongs', [TruongController::class, 'index']);
+Route::get('/truongs/ds', [TruongController::class, 'DsTruong']);
 Route::post('/truongs', [TruongController::class, 'store']);
-
+Route::put('/truongs/{id}', [TruongController::class, 'update']);
+Route::delete('/truongs/{id}', [TruongController::class, 'destroy']);
 // Vitri
 Route::get('/vi-tris', [ViTriController::class, 'index']);
+Route::get('/vi-tris/ds', [ViTriController::class, 'DsViTri']);
+Route::put('/vi-tris/{id}', [ViTriController::class, 'update']);
+Route::delete('/vi-tris/{id}', [ViTriController::class, 'destroy']);
 Route::post('/vi-tris', [ViTriController::class, 'store']);

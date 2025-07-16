@@ -15,6 +15,7 @@ class Truong extends Model
         'maTruong',
         'tenTruong',
         'moTa',
+        'logo'
     ];
 
     public function sinhViens()
