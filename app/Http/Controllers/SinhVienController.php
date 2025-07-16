@@ -265,8 +265,7 @@ public function store(Request $request)
     ], 200);
 }
 
- public function getSinhVien($maSV)
-    {
+ public function getSinhVien($maSV){
         $sinhVien = SinhVien::where('maSV', $maSV)->first();
 
         if (!$sinhVien) {
@@ -280,4 +279,16 @@ public function store(Request $request)
             'data' => $sinhVien,
         ]);
     }
+
+    public function destroyMany(Request $request)
+{
+    $ids = $request->input('ids', []);
+    if (!empty($ids)) {
+        SinhVien::whereIn('maSV', $ids)->delete();
+        return response()->json(['message' => 'Đã xóa thành công']);
+    }
+
+    return response()->json(['message' => 'Không có sinh viên nào được chọn'], 400);
+}
+
 }

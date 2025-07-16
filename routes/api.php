@@ -29,6 +29,7 @@ Route::get('/sinhviens/{maSV}', [SinhVienController::class, 'show']);
 Route::get('/sinhviens/lay-thong-tin-ho-so/{maSV}', [SinhVienController::class, 'showWithHoSo']);
 Route::delete('/sinhviens/{maSV}', [SinhVienController::class, 'destroy']);
 Route::put('/sinhviens/{maSV}', [SinhVienController::class, 'update']);
+Route::post('/sinhviens/xoa-nhieu', [SinhVienController::class, 'destroyMany']);
 
 
 
@@ -128,7 +129,6 @@ Route::post('/task-comments', [TaskCommentController::class, 'store']);
 
 
 // swap schedule
-
 Route::get('/schedule-swaps', [ScheduleSwapController::class, 'index']);
 Route::post('/schedule-swaps', [ScheduleSwapController::class, 'store']);
 Route::put('/schedule-swaps/{id}/status', [ScheduleSwapController::class, 'updateStatus']);

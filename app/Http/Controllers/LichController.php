@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Lich;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 class LichController extends Controller
 {
@@ -48,7 +49,8 @@ public function lichTheoTuan(Request $request)
     $lichs = Lich::where('maSV', $maSV)
                 ->whereBetween('ngay', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
                 ->get();
-
+    // $temp = Lich::where('maSV', '=', $maSV)->get();
+    // return response()->json([$maSV,$lichs, $temp], 400);
     // Chuyển đổi dữ liệu cho frontend
     $events = $lichs->map(function ($lich) {
         $carbonDate = Carbon::parse($lich->ngay);
@@ -171,29 +173,30 @@ public function taoLich(Request $request)
         'ngay' => 'required|date',
         'ca' => 'required|in:8:00-12:00,13:00-17:00',
     ]);
-
+    
     $mapCa = [
         '8:00-12:00' => ['time' => '08:00', 'duration' => 4],
         '13:00-17:00' => ['time' => '13:00', 'duration' => 4],
     ];
-
-    $ngay = Carbon::parse($request->ngay)->startOfDay();
+    $ngay = Carbon::createFromFormat('Y-m-d', $request->ngay,'Asia/Ho_Chi_Minh');
+    // $ngay = Carbon::parse($request->ngay)->startOfDay();
     $today = Carbon::today();
-
+    
     // Không cho thêm lịch quá khứ
     if ($ngay->lt($today)) {
         return response()->json(['message' => 'Không thể thêm lịch vào ngày đã qua!'], 400);
     }
-
+    
     // Kiểm tra trùng lịch
     $exist = Lich::where('maSV', $request->maSV)
-        ->where('ngay', $ngay->toDateString())
-        ->where('time', $mapCa[$request->ca]['time'])
-        ->exists();
-
+    ->where('ngay', '=',$ngay->format('Y-m-d'))
+    ->where('time', '=',$mapCa[$request->ca]['time'])
+    ->exists();
+    
     if ($exist) {
         return response()->json(['message' => 'Lịch bị trùng khung giờ!'], 409);
     }
+    // return response()->json([$ngay, $mapCa[$request->ca]['time'], $exist], 409);
 
     // Tạo lịch
     $lich = Lich::create([
