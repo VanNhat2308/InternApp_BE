@@ -31,6 +31,7 @@ class TruongController extends Controller
         'maTruong' => 'required|string|max:255',
         'tenTruong' => 'required|string|max:255',
         'moTa' => 'nullable|string',
+         'logo' => 'nullable|string', 
     ]);
 
     $truong = Truong::findOrFail($id);
@@ -39,6 +40,7 @@ class TruongController extends Controller
         'maTruong' => $request->maTruong,
         'tenTruong' => $request->tenTruong,
         'moTa' => $request->moTa,
+        'logo' => $request->logo,
     ]);
 
     return response()->json([
@@ -66,17 +68,19 @@ class TruongController extends Controller
   
 public function store(Request $request)
 {
-    $validated = $request->validate([
-        'maTruong'   => 'required|string|unique:truongs,maTruong',
-        'tenTruong'  => 'required|string|max:255',
-        'moTa'       => 'nullable|string',
+    $request->validate([
+        'maTruong' => 'required|string|max:255|unique:truongs,maTruong',
+        'tenTruong' => 'required|string|max:255',
+        'moTa' => 'nullable|string',
+        'logo' => 'nullable|string', // 👈 Đường dẫn logo từ client
     ]);
 
-    $truong = Truong::create($validated);
+    $school = Truong::create($request->only('maTruong', 'tenTruong', 'moTa', 'logo'));
 
     return response()->json([
         'message' => 'Thêm trường thành công',
-        'data'    => $truong,
-    ], 201);
+        'data' => $school,
+    ]);
 }
+
 }
