@@ -20,7 +20,7 @@ public function danhSachBaoCao(Request $request)
     $kyThucTap = $request->input('ky_thuc_tap');
 
     $query = BaoCao::with(['sinhVien.truong']) // 👈 Join cả sinh viên và trường
-        ->orderBy('ngayTao', 'desc');
+        ->orderBy('ngayTao', 'asc');
 
     // Filter theo sinh viên liên quan
     $query->whereHas('sinhVien', function ($q) use ($search, $viTri, $truong, $kyThucTap) {
