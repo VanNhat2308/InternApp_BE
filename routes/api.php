@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BaoCaoController;
 use App\Http\Controllers\DiemDanhController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HoSoController;
 use App\Http\Controllers\LichController;
+use App\Http\Controllers\LoginHistoryController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NhatKyController;
 use App\Http\Controllers\ScheduleSwapController;
@@ -14,6 +16,7 @@ use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TruongController;
 use App\Http\Controllers\ViTriController;
+use App\Models\LoginHistory;
 use Illuminate\Support\Facades\Route;
 
 
@@ -39,6 +42,7 @@ Route::post('/sinhviens/xoa-nhieu', [SinhVienController::class, 'destroyMany']);
 Route::get('/hoso/counths', [HoSoController::class, 'countHS']);
 Route::get('/hoso/lay-danh-sach-ho-so', [HoSoController::class, 'index']);
 Route::post('/sinhviens/duyet-ho-so/{maSV}', [HoSoController::class, 'duyetHoSo']);
+Route::post('/hoso', [HoSoController::class, 'store']);
 
 
 
@@ -146,3 +150,9 @@ Route::get('/vi-tris/ds', [ViTriController::class, 'DsViTri']);
 Route::put('/vi-tris/{id}', [ViTriController::class, 'update']);
 Route::delete('/vi-tris/{id}', [ViTriController::class, 'destroy']);
 Route::post('/vi-tris', [ViTriController::class, 'store']);
+
+// admin
+Route::post('/admin', [AdminController::class, 'store']);
+
+// login history
+Route::get('/LoginHistory', [LoginHistoryController::class, 'index']);

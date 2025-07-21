@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
      Schema::create('admin', function (Blueprint $table) {
-        $table->string('maAdmin')->primary();   // Khóa chính
-        $table->string('matKhau');
+        $table->id('maAdmin');   // Khóa chính
+        $table->string('password');
         $table->string('email')->unique();
         $table->string('hoTen');
         $table->timestamps(); // Tạo 2 cột: created_at & updated_at

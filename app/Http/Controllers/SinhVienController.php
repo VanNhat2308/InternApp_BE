@@ -59,7 +59,10 @@ public function getAllSinhVienDiemDanhHomNay()
 public function index(Request $request)
 {
     if ($request->query('all')) {
-        $students = SinhVien::all();
+        $students = SinhVien::whereHas('hoSo', function ($q) {
+            $q->where('trangThai', 'Đã duyệt');
+        })->get();
+
         return response()->json(['data' => $students]);
     }
 
@@ -69,14 +72,15 @@ public function index(Request $request)
     $truong = array_filter(explode(',', $request->input('truong', '')));
     $kyThucTap = $request->input('ky_thuc_tap');
 
-    $query = SinhVien::with('truong');
+    $query = SinhVien::with('truong')
+        ->whereHas('hoSo', function ($q) {
+            $q->where('trangThai', 'Đã duyệt');
+        });
 
-    // Tìm kiếm theo tên sinh viên
     if ($search) {
         $query->where('hoTen', 'like', "%{$search}%");
     }
 
-    // Lọc theo nhiều vị trí (gần đúng)
     if (!empty($viTri)) {
         $query->where(function ($q) use ($viTri) {
             foreach ($viTri as $value) {
@@ -85,19 +89,16 @@ public function index(Request $request)
         });
     }
 
-    // Lọc theo nhiều trường (gần đúng)
     if (!empty($truong)) {
         $query->whereHas('truong', function ($q) use ($truong) {
             $q->whereIn('tenTruong', array_map('trim', $truong));
         });
     }
 
-    // Lọc theo kỳ thực tập
     if ($kyThucTap) {
         $query->where('ky_thuc_tap', $kyThucTap);
     }
 
-    // Paginate & Trả kết quả
     $sinhViens = $query->paginate($perPage);
 
     return response()->json([

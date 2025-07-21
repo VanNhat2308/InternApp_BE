@@ -16,7 +16,7 @@ class Admin extends Authenticatable implements JWTSubject
 
     public $timestamps = true;         // Có timestamps
 
-    protected $fillable = ['maAdmin', 'matKhau', 'email', 'hoTen'];
+    protected $fillable = ['maAdmin', 'password', 'email', 'hoTen'];
     protected $hidden = [
     'matKhau', 'password', 'remember_token',];
     
@@ -24,7 +24,7 @@ class Admin extends Authenticatable implements JWTSubject
 
     public function getAuthPassword()
 {
-    return $this->matKhau;
+    return $this->password;
 }
 
 public function getJWTIdentifier() {

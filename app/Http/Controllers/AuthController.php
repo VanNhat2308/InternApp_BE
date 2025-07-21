@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LoginHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -93,6 +94,14 @@ private function loginWithGuard(Request $request, $guard, $role)
             'message' => 'JWT attempt failed. Có thể do guard hoặc model chưa đúng.',
         ], 401);
     }
+
+    $isAdmin = $role == 'admin';
+    LoginHistory::create([
+    'email'=>$user->email,
+    'ip_address' => $request->ip(),
+    'loaiNguoiDung'=>$isAdmin? 'admin':'sinhvien',
+
+]);
 
     return response()->json([
         'status' => 'success',
