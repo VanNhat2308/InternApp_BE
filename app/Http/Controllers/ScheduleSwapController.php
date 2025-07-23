@@ -11,20 +11,43 @@ use Illuminate\Validation\Rule;
 class ScheduleSwapController extends Controller
 {
     // GET: Lấy danh sách đổi ca của sinh viên
-    public function index(Request $request)
-    {
-        $maSV = $request->query('maSV');
+public function index(Request $request)
+{
+    $perPage = $request->query('per_page', 10); // Số dòng mỗi trang, mặc định là 10
 
-        if (!$maSV) {
-            return response()->json(['message' => 'Thiếu mã sinh viên.'], 400);
-        }
+    $query = ScheduleSwap::with(['sinhVien:maSV,hoTen'])
+                ->orderByDesc('created_at');
 
-        $swaps = ScheduleSwap::where('maSV', $maSV)
-            ->orderByDesc('created_at')
-            ->get();
+    // Lọc theo tên nếu có
+    if ($request->filled('search')) {
+        $hoTen = $request->query('search');
 
-        return response()->json($swaps);
+        $query->whereHas('sinhVien', function ($q) use ($hoTen) {
+            $q->where('hoTen', 'like', '%' . $hoTen . '%');
+        });
     }
+
+    $paginated = $query->paginate($perPage);
+
+    // Thêm hoTen vào từng phần tử trong kết quả
+    $data = $paginated->getCollection()->map(function ($swap) {
+        return [
+            ...$swap->toArray(),
+            'hoTen' => $swap->sinhVien->hoTen ?? null,
+        ];
+    });
+
+    // Trả về dữ liệu kèm thông tin phân trang
+    return response()->json([
+        'data' => $data,
+        'current_page' => $paginated->currentPage(),
+        'last_page' => $paginated->lastPage(),
+        'per_page' => $paginated->perPage(),
+        'total' => $paginated->total(),
+    ]);
+}
+
+
 
     // POST: Tạo yêu cầu đổi ca mới
     public function store(Request $request)

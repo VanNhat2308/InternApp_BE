@@ -22,13 +22,14 @@ class HoSoController extends Controller
 public function index(Request $request)
 {
     $perPage = $request->input('per_page', 10);
+    $status = $request->input('status');
     $search = $request->input('search');
     $viTri = array_filter(explode(',', $request->input('vi_tri', '')));
     $truong = array_filter(explode(',', $request->input('truong', '')));
     $kyThucTap = $request->input('ky_thuc_tap');
 
     $query = HoSo::with(['sinhVien.truong'])
-    ->where('trangThai', 'Chờ duyệt')
+    ->where('trangThai', $status)
     ->orderBy('ngayNop', 'desc'); 
 
 
@@ -113,7 +114,8 @@ public function store(Request $request)
         //
     }
     public function duyetHoSo(Request $request, string $maSV)
-{
+{  
+    $status = $request->input('status');
     // Tìm sinh viên
     $sinhVien = SinhVien::where('maSV', $maSV)->first();
 
@@ -135,7 +137,7 @@ public function store(Request $request)
     }
 
     // Cập nhật trạng thái
-    $hoSo->trangThai = 'Đã duyệt';
+    $hoSo->trangThai = $status;
     $hoSo->save();
 
     return response()->json([
