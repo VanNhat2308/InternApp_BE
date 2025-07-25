@@ -17,14 +17,13 @@ public function danhSachBaoCao(Request $request)
     $search = $request->input('search');
     $viTri = array_filter(explode(',', $request->input('vi_tri', '')));
     $truong = array_filter(explode(',', $request->input('truong', '')));
-    $kyThucTap = $request->input('ky_thuc_tap');
+    $date = $request->input('date');
 
-    $query = BaoCao::with(['sinhVien.truong']) // 👈 Join cả sinh viên và trường
+    $query = BaoCao::with(['sinhVien.truong']) 
         ->orderBy('ngayTao', 'asc');
 
     // Filter theo sinh viên liên quan
-    $query->whereHas('sinhVien', function ($q) use ($search, $viTri, $truong, $kyThucTap) {
-
+    $query->whereHas('sinhVien', function ($q) use ($search, $viTri, $truong) {
         // Tìm kiếm tên sinh viên
         if ($search) {
             $q->where('hoTen', 'like', "%{$search}%");
@@ -45,12 +44,12 @@ public function danhSachBaoCao(Request $request)
                 $subQ->whereIn('tenTruong', array_map('trim', $truong));
             });
         }
-
-        // Lọc theo kỳ thực tập
-        if ($kyThucTap) {
-            $q->where('ky_thuc_tap', $kyThucTap);
-        }
     });
+
+    // ✅ Thêm điều kiện lọc theo ngày
+    if ($date) {
+        $query->whereDate('ngayTao', $date);
+    }
 
     $baoCaos = $query->paginate($perPage);
 
@@ -60,6 +59,7 @@ public function danhSachBaoCao(Request $request)
         'baoCaos' => $baoCaos
     ]);
 }
+
 
 
 

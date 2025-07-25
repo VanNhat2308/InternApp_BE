@@ -77,9 +77,14 @@ public function index(Request $request)
             $q->where('trangThai', 'Đã duyệt');
         });
 
-    if ($search) {
-        $query->where('hoTen', 'like', "%{$search}%");
-    }
+   if ($search) {
+    $query->where(function ($q) use ($search) {
+        $q->where('hoTen', 'like', "%{$search}%")
+          ->orWhere('maSV', 'like', "%{$search}%")
+          ->orWhere('email', 'like', "%{$search}%");
+    });
+}
+
 
     if (!empty($viTri)) {
         $query->where(function ($q) use ($viTri) {

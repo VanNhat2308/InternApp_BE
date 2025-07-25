@@ -26,9 +26,17 @@ class ViTriController extends Controller
      public function DsViTri(Request $request)
     {
         $perPage = $request->input('per_page', 10);
-        return response()->json([
-            'data' => ViTri::paginate($perPage)
-        ]);
+        $search = $request->input('search');
+        $query = ViTri::query();
+         if ($search) {
+        $query->where('tenViTri', 'like', "%$search%");
+    }
+
+         $viTri = $query->orderBy('id', 'desc')->paginate($perPage);
+
+    return response()->json([
+        'data' => $viTri
+    ]);
     }
 
     public function update(Request $request, $id)

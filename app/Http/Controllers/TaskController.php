@@ -110,19 +110,24 @@ class TaskController extends Controller
 }
 
 
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
+  public function index(Request $request)
+{
+    $search = $request->input('search');
+    $status = $request->input('status');
 
-        $tasks = Task::with('sinhVien') // Eager loading tránh N+1
-            ->when($search, function ($query, $search) {
-                return $query->where('tieuDe', 'like', '%' . $search . '%');
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
+    $tasks = Task::with('sinhVien')
+        ->when($search, function ($query, $search) {
+            return $query->where('tieuDe', 'like', '%' . $search . '%');
+        })
+        ->when($status, function ($query, $status) {
+            return $query->where('trangThai', $status);
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(12);
 
-        return response()->json($tasks);
-    }
+    return response()->json($tasks);
+}
+
     public function updateDiemSo(Request $request, $id)
     {
         $request->validate([

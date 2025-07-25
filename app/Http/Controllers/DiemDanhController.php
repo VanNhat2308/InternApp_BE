@@ -227,22 +227,30 @@ class DiemDanhController extends Controller
         ]);
     }
 
-    public function danhSachSinhVienDiemDanhHomNay()
-    {
-        $homNay = Carbon::today()->toDateString();
+  public function danhSachSinhVienDiemDanhHomNay(Request $request)
+{
+    $homNay = Carbon::today()->toDateString();
+    $search = $request->input('search'); // Lấy tham số tìm kiếm
 
-        // Lấy danh sách điểm danh hôm nay, phân trang 15 sinh viên mỗi lần
-        $danhSach = DiemDanh::with('sinhVien')
-            ->whereDate('ngay_diem_danh', $homNay)
-            ->paginate(10); // phân trang
+    $query = DiemDanh::with('sinhVien')
+        ->whereDate('ngay_diem_danh', $homNay)
+        ->when($search, function ($q) use ($search) {
+            $q->whereHas('sinhVien', function ($query) use ($search) {
+                $query->where('hoTen', 'like', '%' . $search . '%')
+                      ->orWhere('maSV', 'like', '%' . $search . '%')
+                      ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        });
 
-        return response()->json([
-            'status' => 'success',
-            'ngay' => $homNay,
-            'so_luong' => $danhSach->total(),  // tổng tất cả sinh viên điểm danh hôm nay
-            'data' => $danhSach
-        ]);
-    }
+    $danhSach = $query->paginate(10);
+
+    return response()->json([
+        'status' => 'success',
+        'ngay' => $homNay,
+        'so_luong' => $danhSach->total(),
+        'data' => $danhSach
+    ]);
+}
 
     public function thongKeTuanTruocVaHienTai()
     {

@@ -49,16 +49,25 @@ class TruongController extends Controller
     ]);
 }
 
-    public function DsTruong(Request $request)
+public function DsTruong(Request $request)
 {
     $perPage = $request->input('per_page', 10);
-    
-    $truongs = Truong::orderBy('id', 'desc')->paginate($perPage);
+    $search = $request->input('search'); // lấy từ khóa tìm kiếm
+
+    $query = Truong::query();
+
+    if ($search) {
+        $query->where('tenTruong', 'like', "%$search%")
+              ->orWhere('maTruong', 'like', "%$search%");
+    }
+
+    $truongs = $query->orderBy('id', 'desc')->paginate($perPage);
 
     return response()->json([
         'data' => $truongs
     ]);
 }
+
      public function index()
     {
         return Truong::all();
