@@ -98,7 +98,6 @@ class DuLieuMauSeeder extends Seeder
 
             // 7. Task
             DB::table('tasks')->insert([
-                'maSV' => $id,
                 'tieuDe' => 'Task ' . ($i),
                 'noiDung' => 'Nội dung task ' . ($i),
                 'diemSo' => null,
@@ -107,6 +106,7 @@ class DuLieuMauSeeder extends Seeder
                 'trangThai' => collect(['Đã nộp', 'Chưa nộp', 'Nộp trễ'])->random(),
             ]);
 
+       
             // 8. Điểm danh hôm qua và hôm nay
             foreach ([now()->subDay(), now()] as $day) {
                 // Random giờ bắt đầu từ 07:30 đến 09:00
@@ -149,6 +149,24 @@ class DuLieuMauSeeder extends Seeder
                 'ghi_chu' => $trangThai === 'late' ? 'Đến trễ so với giờ quy định' : 'Có mặt đúng giờ',
             ]);
         }
+
+         $sinhViens = DB::table('sinh_viens')->pluck('maSV'); // trả về collection maSV
+      $taskIds = DB::table('tasks')->pluck('id'); // trả về collection id task
+
+    foreach ($sinhViens as $maSV) {
+        // Gán từ 1-3 task ngẫu nhiên cho mỗi sinh viên
+        $randomTaskIds = $taskIds->random(rand(1, 3));
+
+        foreach ($randomTaskIds as $taskId) {
+            DB::table('sinh_vien_task')->insert([
+                'maSV' => $maSV,
+                'task_id' => $taskId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
 
     DB::table('admin')->insert([
     'maAdmin' => 1,

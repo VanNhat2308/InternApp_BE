@@ -83,10 +83,11 @@ public function baoCao()
 {
     return $this->hasOne(BaoCao::class, 'maSV', 'maSV');
 }
-public function tasks()
+ public function sinhViens()
 {
-    return $this->hasMany(Task::class, 'maSV');
+    return $this->belongsToMany(SinhVien::class, 'sinh_vien_task', 'id', 'maSV');
 }
+
 
 public function diemDanhs()
 {

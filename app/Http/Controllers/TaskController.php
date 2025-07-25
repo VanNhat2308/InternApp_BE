@@ -21,47 +21,37 @@ class TaskController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'tieuDe' => 'required|string|max:255',
-            'noiDung' => 'required|string',
-            'maSV' => 'required|string|exists:sinh_viens,maSV',
-            'doUuTien' => 'required|in:Thấp,Trung bình,Cao',
-            'hanHoanThanh' => 'required|date',
-        ]);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'tieuDe' => 'required|string|max:255',
+        'noiDung' => 'required|string',
+        'maSV' => 'required|array',
+        'maSV.*' => 'exists:sinh_viens,maSV',
+        'doUuTien' => 'required|in:Thấp,Trung bình,Cao',
+        'hanHoanThanh' => 'required|date',
+        'nguoiGiao' => 'required|string|max:255',
+    ]);
 
-        $task = Task::create($validated);
+    // Tạo task
+    $task = Task::create([
+        'tieuDe' => $validated['tieuDe'],
+        'noiDung' => $validated['noiDung'],
+        'doUuTien' => $validated['doUuTien'],
+        'hanHoanThanh' => $validated['hanHoanThanh'],
+        'trangThai' => 'Chưa nộp', // mặc định
+        'nguoiGiao' => $validated['nguoiGiao'],
+    ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Tạo task thành công',
-            'data' => $task,
-        ], 201);
-    }
-    // GET /api/student/tasks?id=1
-    // public function index(Request $request)
-    // {
-    //     $id = $request->query('id'); 
+    // Gán sinh viên thực hiện (nhiều-nhiều)
+    $task->sinhViens()->attach($validated['maSV']);
 
-    //     if (!$id) {
-    //         return response()->json(['message' => 'Thiếu ID sinh viên'], 400);
-    //     }
-
-    //     $sinhVien = SinhVien::where('maSV', $id)->first();
-
-
-    //     if (!$sinhVien) {
-    //         return response()->json(['message' => 'Sinh viên không tồn tại'], 404);
-    //     }
-
-    //     $tasks = $sinhVien->tasks()->paginate(10);
-
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'data' => $tasks
-    //     ]);
-    // }
+    return response()->json([
+        'message' => 'Tạo task thành công',
+        'data' => $task->load('sinhViens')
+    ]);
+}
+   
     // GET /api/student/tasks/countTask
     public function countTasks()
     {
@@ -110,12 +100,12 @@ class TaskController extends Controller
 }
 
 
-  public function index(Request $request)
+public function index(Request $request)
 {
     $search = $request->input('search');
     $status = $request->input('status');
 
-    $tasks = Task::with('sinhVien')
+    $tasks = Task::with('sinhViens') // tên hàm quan hệ trong model Task
         ->when($search, function ($query, $search) {
             return $query->where('tieuDe', 'like', '%' . $search . '%');
         })
@@ -127,6 +117,7 @@ class TaskController extends Controller
 
     return response()->json($tasks);
 }
+
 
     public function updateDiemSo(Request $request, $id)
     {

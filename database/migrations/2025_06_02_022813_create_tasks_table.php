@@ -13,14 +13,12 @@ return new class extends Migration
     {
          Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('maSV');
             $table->string('tieuDe');
             $table->text('noiDung');
             $table->date('hanHoanThanh')->nullable();
             $table->string('trangThai')->default('Chưa hoàn thành');
+            $table->string('nguoiGiao')->nullable();
             $table->timestamps();
-
-            $table->foreign('maSV')->references('maSV')->on('sinh_viens')->onDelete('cascade');
         });
     }
 
