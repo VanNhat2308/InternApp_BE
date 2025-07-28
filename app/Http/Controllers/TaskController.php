@@ -10,15 +10,16 @@ use Illuminate\Support\Facades\DB;
 class TaskController extends Controller
 {
 //  Tổng số task
-    public function tongSoTaskTheoSinhVien($maSV)
-    {
-        $tong = DB::table('tasks')->where('maSV', $maSV)->count();
+public function tongSoTaskTheoSinhVien($maSV)
+{
+    $tong = DB::table('sinh_vien_task')->where('maSV', $maSV)->count();
 
-        return response()->json([
-            'maSV' => $maSV,
-            'tong_so_task' => $tong,
-        ]);
-    }
+    return response()->json([
+        'maSV' => $maSV,
+        'tong_so_task' => $tong,
+    ]);
+}
+
 
 
 public function store(Request $request)
@@ -64,31 +65,34 @@ public function store(Request $request)
         );
     }
 
-    public function show($id)
-    {
-        $task = Task::with('sinhVien')->find($id);
+public function show($id)
+{
+    $task = Task::with('sinhViens')->find($id);
 
-        if (!$task) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Task không tồn tại'
-            ], 404);
-        }
-
+    if (!$task) {
         return response()->json([
-            'status' => 'success',
-            'data' => $task
-        ]);
+            'status' => 'error',
+            'message' => 'Task không tồn tại'
+        ], 404);
     }
 
-    public function listTaskSV(Request $request)
+    return response()->json([
+        'status' => 'success',
+        'data' => $task
+    ]);
+}
+
+
+public function listTaskSV(Request $request)
 {
     $search = $request->input('search');
     $maSV = $request->input('maSV'); // lấy mã sinh viên từ query string
 
-    $tasks = Task::with('sinhVien')
+    $tasks = Task::with('sinhViens') // chú ý tên quan hệ là số nhiều nếu bạn định nghĩa là belongsToMany
         ->when($maSV, function ($query, $maSV) {
-            return $query->where('maSV', $maSV);
+            return $query->whereHas('sinhViens', function ($q) use ($maSV) {
+                $q->where('sinh_viens.maSV', $maSV); // thêm tên bảng để tránh ambiguity
+            });
         })
         ->when($search, function ($query, $search) {
             return $query->where('tieuDe', 'like', '%' . $search . '%');
@@ -98,6 +102,8 @@ public function store(Request $request)
 
     return response()->json($tasks);
 }
+
+
 
 
 public function index(Request $request)
