@@ -149,28 +149,32 @@ public function index(Request $request)
             'message' => 'Xóa task thành công!'
         ]);
     }
-    public function updateStatus(Request $request, $id)
+public function updateStatus(Request $request, $id)
 {
     // Validate đầu vào
     $request->validate([
         'trangThai' => 'required|string',
-        'tepDinhKem' => 'nullable|string', // Có thể không có file đính kèm
+        'tepDinhKem' => 'nullable|array', // Phải là mảng nếu có
     ]);
 
     // Tìm task theo ID
     $task = Task::findOrFail($id);
 
-    // Cập nhật trạng thái và file đính kèm (nếu có)
+    // Cập nhật trạng thái và tệp đính kèm nếu có
     $task->trangThai = $request->trangThai;
-    if ($request->filled('tepDinhKem')) {
-        $task->tepDinhKem = $request->tepDinhKem;
+
+    if ($request->has('tepDinhKem')) {
+        $task->tepDinhKem = $request->tepDinhKem; // Laravel tự cast sang JSON
     }
+
     $task->save();
 
     return response()->json([
         'success' => true,
         'message' => 'Cập nhật trạng thái task thành công',
-        'data' => $task
+        'data' => $task, // Tự động trả tepDinhKem dạng mảng
     ]);
 }
+
+
 }

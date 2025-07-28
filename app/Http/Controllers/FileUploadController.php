@@ -12,28 +12,51 @@ class FileUploadController extends Controller
 public function upload(Request $request)
 {
     $request->validate([
-        'avatar' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
-        'cv'     => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:2048',
-        'task'   => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:2048',
-        'logo'   => 'nullable|image|mimes:jpeg,jpg,png|max:2048', // ✅ thêm validate cho logo
+        'avatar'    => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+        'cv'        => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:2048',
+        'task'      => 'nullable|array',
+        'task.*'    => 'file|mimes:pdf,jpeg,jpg,png|max:2048',
+        'logo'      => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
     ]);
 
     $paths = [];
 
     if ($request->hasFile('avatar')) {
-        $paths['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        $file = $request->file('avatar');
+        $stored = $file->store('avatars', 'public');
+        $paths['avatar'] = [
+            'name' => $file->getClientOriginalName(),
+            'path' => $stored
+        ];
     }
 
     if ($request->hasFile('cv')) {
-        $paths['cv'] = $request->file('cv')->store('cvs', 'public');
+        $file = $request->file('cv');
+        $stored = $file->store('cvs', 'public');
+        $paths['cv'] = [
+            'name' => $file->getClientOriginalName(),
+            'path' => $stored
+        ];
     }
 
     if ($request->hasFile('task')) {
-        $paths['task'] = $request->file('task')->store('tasks', 'public');
+        $paths['task'] = [];
+        foreach ($request->file('task') as $file) {
+            $stored = $file->store('tasks', 'public');
+            $paths['task'][] = [
+                'name' => $file->getClientOriginalName(),
+                'path' => $stored
+            ];
+        }
     }
 
     if ($request->hasFile('logo')) {
-        $paths['logo'] = $request->file('logo')->store('logos', 'public'); // ✅ Lưu logo vào thư mục logos
+        $file = $request->file('logo');
+        $stored = $file->store('logos', 'public');
+        $paths['logo'] = [
+            'name' => $file->getClientOriginalName(),
+            'path' => $stored
+        ];
     }
 
     return response()->json([
@@ -41,6 +64,8 @@ public function upload(Request $request)
         'paths' => $paths,
     ]);
 }
+
+
 
 
 

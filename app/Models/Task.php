@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
+    protected $casts = [
+    'tepDinhKem' => 'array',
+];
+
     protected $fillable = ['tieuDe', 'noiDung','diemSo','doUuTien' ,'hanHoanThanh', 'trangThai','tepDinhKem'];
 
 public function sinhViens()

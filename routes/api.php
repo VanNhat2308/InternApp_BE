@@ -87,6 +87,16 @@ Route::post('/logout', [AuthController::class, 'logout']);
 // file upload
 Route::post('/upload', [FileUploadController::class, 'upload']);
 
+Route::get('/download/{encoded}/{original}', function ($encoded, $original) {
+    $path = storage_path('app/public/tasks/' . $encoded);
+
+    if (!file_exists($path)) {
+        abort(404, 'File not found');
+    }
+
+    return response()->download($path, $original);
+});
+
 
 // bao cao
 Route::get('/bao-cao', [BaoCaoController::class, 'danhSachBaoCao']);
