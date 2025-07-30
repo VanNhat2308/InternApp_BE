@@ -89,7 +89,8 @@ public function listTaskSV(Request $request)
     $maSV = $request->input('maSV'); // lấy mã sinh viên từ query string
 
     $tasks = Task::with('sinhViens') // chú ý tên quan hệ là số nhiều nếu bạn định nghĩa là belongsToMany
-        ->when($maSV, function ($query, $maSV) {
+              ->withCount('taskComments')     
+    ->when($maSV, function ($query, $maSV) {
             return $query->whereHas('sinhViens', function ($q) use ($maSV) {
                 $q->where('sinh_viens.maSV', $maSV); // thêm tên bảng để tránh ambiguity
             });
@@ -111,18 +112,16 @@ public function index(Request $request)
     $search = $request->input('search');
     $status = $request->input('status');
 
-    $tasks = Task::with('sinhViens') // tên hàm quan hệ trong model Task
-        ->when($search, function ($query, $search) {
-            return $query->where('tieuDe', 'like', '%' . $search . '%');
-        })
-        ->when($status, function ($query, $status) {
-            return $query->where('trangThai', $status);
-        })
+    $tasks = Task::with('sinhViens') // load sinhViens
+        ->withCount('taskComments')  // đếm số comment
+        ->when($search, fn ($query) => $query->where('tieuDe', 'like', '%' . $search . '%'))
+        ->when($status, fn ($query) => $query->where('trangThai', $status))
         ->orderBy('created_at', 'desc')
         ->paginate(12);
 
     return response()->json($tasks);
 }
+
 
 
     public function updateDiemSo(Request $request, $id)

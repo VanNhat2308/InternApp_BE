@@ -27,4 +27,16 @@ class AdminController extends Controller
             'admin' => $admin,
         ]);
     }
+    // Ví dụ cho AdminController
+public function index(Request $request)
+{
+    $search = $request->input('search');
+
+    $admins = Admin::when($search, fn($query) =>
+        $query->where('name', 'like', "%$search%")
+    )->select('maAdmin', 'hoTen', 'email')->get();
+
+    return response()->json($admins);
+}
+
 }

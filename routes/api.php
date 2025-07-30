@@ -117,6 +117,7 @@ Route::get('/messages/feedback-panel', [MessageController::class, 'feedbackList'
 Route::get('/messages/conversation/{id}', [MessageController::class, 'getMessages']);
 Route::get('/messages/feedback-panel-student', [MessageController::class, 'feedbackListForStudent']);
 Route::post('/messages/mark-as-read', [MessageController::class, 'markAsRead']);
+Route::post('/messages/conversation/find-or-create', [MessageController::class, 'findOrCreateConversation']);
 
 
 // pusher

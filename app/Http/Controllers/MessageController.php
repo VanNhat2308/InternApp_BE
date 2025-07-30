@@ -163,4 +163,50 @@ public function markAsRead(Request $request)
 
         return response()->json($message);
     }
+
+    public function findOrCreateConversation(Request $request)
+{
+    $request->validate([
+        'from_id'   => 'required|integer',
+        'from_role' => 'required|in:sinhvien,admin',
+        'to_id'     => 'required|integer',
+        'to_role'   => 'required|in:sinhvien,admin',
+    ]);
+
+    $from_id = $request->input('from_id');
+    $from_role = $request->input('from_role');
+    $to_id = $request->input('to_id');
+    $to_role = $request->input('to_role');
+
+    // Tìm hội thoại 2 chiều giữa from/to và to/from
+$conversation = Conversation::where(function ($q) use ($from_id, $from_role, $to_id, $to_role) {
+    $q->where(function ($query) use ($from_id, $from_role, $to_id, $to_role) {
+        $query->where('user1_id', $from_id)
+              ->where('user1_role', $from_role)
+              ->where('user2_id', $to_id)
+              ->where('user2_role', $to_role);
+    })->orWhere(function ($query) use ($from_id, $from_role, $to_id, $to_role) {
+        $query->where('user1_id', $to_id)
+              ->where('user1_role', $to_role)
+              ->where('user2_id', $from_id)
+              ->where('user2_role', $from_role);
+    });
+})->first();
+
+
+    // Nếu chưa có thì tạo
+    if (!$conversation) {
+        $conversation = Conversation::create([
+            'user1_id' => $from_id,
+            'user1_role' => $from_role,
+            'user2_id' => $to_id,
+            'user2_role' => $to_role,
+        ]);
+    }
+
+    return response()->json([
+        'conversation_id' => $conversation->id,
+    ]);
+}
+
 }

@@ -16,6 +16,10 @@ public function sinhViens()
 {
     return $this->belongsToMany(SinhVien::class, 'sinh_vien_task', 'task_id', 'maSV', 'id', 'maSV');
 }
+public function taskComments()
+{
+    return $this->hasMany(TaskComment::class);
+}
 
 
 }
