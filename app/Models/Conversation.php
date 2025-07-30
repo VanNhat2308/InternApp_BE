@@ -52,4 +52,16 @@ class Conversation extends Model
             ]
         );
     }
+public function getSinhvienAttribute()
+{
+    if ($this->user1_role === 'sinhvien') {
+        return \App\Models\SinhVien::find($this->user1_id);
+    } elseif ($this->user2_role === 'sinhvien') {
+        return \App\Models\SinhVien::find($this->user2_id);
+    }
+
+    return null;
+}
+
+
 }

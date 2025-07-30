@@ -108,4 +108,9 @@ public function taskComments()
         return $this->hasMany(Message::class, 'to_id')->where('to_role', 'sinhvien');
     }
 
+    // App\Models\SinhVien.php
+
+
+
+
 }

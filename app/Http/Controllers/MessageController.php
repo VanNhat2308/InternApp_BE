@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\Conversation;
 use App\Events\NewMessage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 
@@ -89,48 +90,65 @@ public function markAsRead(Request $request)
     /**
      * 🔹 Danh sách sinh viên đã nhắn tin với admin (panel bên trái)
      */
-    public function feedbackList(Request $request)
-    {
-       $adminId = $request->query('id'); // maAdmin của admin hiện tại
+
+public function feedbackList(Request $request)
+{
+    $adminId = $request->query('id');
     $search = $request->query('search');
 
-    // Tin nhắn mới nhất từ mỗi sinh viên gửi đến admin
-    $latestMessages = Message::where([
-            ['to_role', '=', 'admin'],
-            ['to_id', '=', $adminId],
-            ['from_role', '=', 'sinhvien'],
-        ])
-        ->latest('created_at')
-        ->get()
-        ->unique('from_id') // mỗi sinh viên chỉ xuất hiện 1 lần
-        ->take(10);
+    $conversations = Conversation::join('messages', 'messages.id', '=', 'conversations.last_message_id')
+        ->where(function ($q) use ($adminId) {
+            $q->where('user1_role', 'sinhvien')->where('user2_role', 'admin')->where('user2_id', $adminId);
+        })->orWhere(function ($q) use ($adminId) {
+            $q->where('user2_role', 'sinhvien')->where('user1_role', 'admin')->where('user1_id', $adminId);
+        })
+        ->orderByDesc('messages.created_at')
+        ->select('conversations.*') // tránh bị ghi đè khi join
+        ->with(['lastMessage']) // eager load quan hệ
+        ->take(10)
+        ->get();
 
-    // Nạp thông tin sinh viên
-    $latestMessages->load('sinhvienSender');
+    $result = $conversations->map(function ($conv) {
+        $sinhvien = $conv->sinhvien; 
+        $message = $conv->lastMessage;
+        // Nếu lastMessage là rỗng, lấy tin nhắn gần nhất có nội dung
+    if ($message && $message->content === '') {
+        $prevMessage = \App\Models\Message::where('conversation_id', $conv->id)
+            ->where('id', '!=', $message->id)
+            ->where('content', '!=', '')
+            ->orderByDesc('created_at')
+            ->first();
 
-    // Format lại phản hồi
-    $result = $latestMessages->map(function ($msg) {
-        $sinhvien = $msg->sinhvienSender;
+        // Gán lại nếu tìm được
+        if ($prevMessage) {
+            $message = $prevMessage;
+        }
+         $message->is_read = true;
+    }
 
         return [
             'id' => $sinhvien->maSV ?? null,
             'name' => $sinhvien->hoTen ?? 'Không rõ',
-            'preview' => \Illuminate\Support\Str::limit($msg->content, 50),
-            'time' => $msg->created_at->diffForHumans(),
-            'unread' => !$msg->is_read,
-            'conversation_id' => $msg->conversation_id ?? null,
+            'preview' => Str::limit($message->content ?? '', 50),
+            'time' => $message->created_at?->diffForHumans() ?? '',
+            'unread' => !$message->is_read,
+            'conversation_id' => $conv->id,
         ];
     });
 
-    // Lọc theo tên nếu có từ khóa
     if ($search) {
         $result = $result->filter(function ($item) use ($search) {
-            return \Illuminate\Support\Str::contains(\Illuminate\Support\Str::lower($item['name']), \Illuminate\Support\Str::lower($search));
+            return Str::contains(Str::lower($item['name']), Str::lower($search));
         });
     }
 
     return response()->json($result->values());
-    }
+}
+
+
+
+
+
 
     /**
      * 🔹 Gửi tin nhắn mới
@@ -202,8 +220,27 @@ $conversation = Conversation::where(function ($q) use ($from_id, $from_role, $to
             'user2_id' => $to_id,
             'user2_role' => $to_role,
         ]);
+
+
+
+
     }
 
+            $message = Message::create([
+    'from_id'         => $from_id,
+    'from_role'       =>  $from_role,
+    'to_id'           => $to_id,
+    'to_role'         => $to_role,
+    'conversation_id' => $conversation->id,
+    'content'         => "",
+    'type'            => 'text', 
+    'is_read'         => false,
+]);
+
+ Conversation::where('id', $conversation->id)->update([
+            'last_message_id' => $message->id,
+            'updated_at' => now(),
+        ]);
     return response()->json([
         'conversation_id' => $conversation->id,
     ]);
