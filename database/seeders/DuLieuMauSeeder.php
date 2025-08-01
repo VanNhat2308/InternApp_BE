@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\DiemDanh;
+use App\Models\SinhVien;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -188,6 +189,9 @@ for ($sinhvienId = 1; $sinhvienId <= 10; $sinhvienId++) {
         'user2_role' => 'admin',
         'user2_id' => $adminId,
         'updated_at' => now(),
+        'admin_name'=>'Admin Chính',
+        'student_name'=>SinhVien::where('maSV', '=', $sinhvienId)->first()->hoTen
+
     ]);
 
     $now = now();

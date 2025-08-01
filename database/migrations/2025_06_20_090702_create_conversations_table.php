@@ -18,7 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user2_id');
 
             $table->unsignedBigInteger('last_message_id')->nullable();
-
+           $table->string('student_name')->nullable();
+           $table->string('admin_name')->nullable();
             $table->timestamps(); 
 
             $table->foreign('last_message_id')

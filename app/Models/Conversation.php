@@ -15,6 +15,8 @@ class Conversation extends Model
         'user2_role',
         'user2_id',
         'last_message_id',
+        'student_name',
+        'admin_name'
     ];
 
     public $timestamps = false;
@@ -62,6 +64,7 @@ public function getSinhvienAttribute()
 
     return null;
 }
+
 
 
 }

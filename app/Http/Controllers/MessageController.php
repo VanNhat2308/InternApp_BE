@@ -6,12 +6,27 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\Conversation;
 use App\Events\NewMessage;
+use App\Models\Admin;
+use App\Models\SinhVien;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
 
 class MessageController extends Controller
 {
+
+    public function show($id)
+{
+   
+    $conversation = Conversation::find($id);
+
+    if (!$conversation) {
+        return response()->json(['message' => 'Không tìm thấy cuộc trò chuyện'], 404);
+    }
+
+    return response()->json($conversation);
+}
 
 
     
@@ -95,19 +110,21 @@ public function feedbackList(Request $request)
 {
     $adminId = $request->query('id');
     $search = $request->query('search');
-
+    // return response()->json($search);
     $conversations = Conversation::join('messages', 'messages.id', '=', 'conversations.last_message_id')
         ->where(function ($q) use ($adminId) {
             $q->where('user1_role', 'sinhvien')->where('user2_role', 'admin')->where('user2_id', $adminId);
         })->orWhere(function ($q) use ($adminId) {
             $q->where('user2_role', 'sinhvien')->where('user1_role', 'admin')->where('user1_id', $adminId);
         })
+        ->where('student_name', 'like', '%'.$search.'%')
         ->orderByDesc('messages.created_at')
         ->select('conversations.*') // tránh bị ghi đè khi join
         ->with(['lastMessage']) // eager load quan hệ
         ->take(10)
         ->get();
 
+    // return response()->json($conversations);
     $result = $conversations->map(function ($conv) {
         $sinhvien = $conv->sinhvien; 
         $message = $conv->lastMessage;
@@ -123,7 +140,7 @@ public function feedbackList(Request $request)
         if ($prevMessage) {
             $message = $prevMessage;
         }
-         $message->is_read = true;
+   
     }
 
         return [
@@ -131,16 +148,18 @@ public function feedbackList(Request $request)
             'name' => $sinhvien->hoTen ?? 'Không rõ',
             'preview' => Str::limit($message->content ?? '', 50),
             'time' => $message->created_at?->diffForHumans() ?? '',
-            'unread' => !$message->is_read,
+            'unread' => $message->is_read,
             'conversation_id' => $conv->id,
         ];
     });
+
 
     if ($search) {
         $result = $result->filter(function ($item) use ($search) {
             return Str::contains(Str::lower($item['name']), Str::lower($search));
         });
     }
+    
 
     return response()->json($result->values());
 }
@@ -211,6 +230,11 @@ $conversation = Conversation::where(function ($q) use ($from_id, $from_role, $to
     });
 })->first();
 
+ $admin = Admin::where('maAdmin', $from_role === 'admin' ? $from_id : $to_id)->first();
+$sinhvien = SinhVien::where('maSV', $from_role === 'sinhvien' ? $from_id : $to_id)->first();
+if (!$admin || !$sinhvien) {
+    return response()->json(['message' => 'Không tìm thấy admin hoặc sinh viên'], 404);
+}
 
     // Nếu chưa có thì tạo
     if (!$conversation) {
@@ -219,6 +243,8 @@ $conversation = Conversation::where(function ($q) use ($from_id, $from_role, $to
             'user1_role' => $from_role,
             'user2_id' => $to_id,
             'user2_role' => $to_role,
+            'admin_name'=>$admin->hoTen,
+            'student_name'=>$sinhvien->hoTen
         ]);
 
 
@@ -244,6 +270,34 @@ $conversation = Conversation::where(function ($q) use ($from_id, $from_role, $to
     return response()->json([
         'conversation_id' => $conversation->id,
     ]);
+}
+
+public function destroy($id)
+{
+    DB::beginTransaction();
+
+    try {
+        $conversation = Conversation::findOrFail($id);
+
+        // Xoá tất cả message liên quan đến conversation này
+        $conversation->messages()->delete();
+
+        // Xoá conversation
+        $conversation->delete();
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Conversation và tất cả tin nhắn đã được xoá.'
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'error' => 'Đã xảy ra lỗi khi xoá conversation.',
+            'details' => $e->getMessage(),
+        ], 500);
+    }
 }
 
 }

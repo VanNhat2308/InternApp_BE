@@ -118,6 +118,8 @@ Route::get('/messages/conversation/{id}', [MessageController::class, 'getMessage
 Route::get('/messages/feedback-panel-student', [MessageController::class, 'feedbackListForStudent']);
 Route::post('/messages/mark-as-read', [MessageController::class, 'markAsRead']);
 Route::post('/messages/conversation/find-or-create', [MessageController::class, 'findOrCreateConversation']);
+Route::get('/messages/conversationV2/{id}', [MessageController::class, 'show']);
+Route::delete('/conversations/{id}', [MessageController::class, 'destroy']);
 
 
 // pusher
