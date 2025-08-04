@@ -81,7 +81,7 @@ public function nhatKy()
 }
 public function baoCao()
 {
-    return $this->hasOne(BaoCao::class, 'maSV', 'maSV');
+    return $this->hasMany(BaoCao::class, 'maSV', 'maSV');
 }
  public function sinhViens()
 {

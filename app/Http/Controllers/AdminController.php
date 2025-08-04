@@ -31,12 +31,19 @@ class AdminController extends Controller
 public function index(Request $request)
 {
     $search = $request->input('search');
+    $perPage = $request->input('per_page', 10); // Mặc định 10 bản ghi mỗi trang
 
-    $admins = Admin::when($search, fn($query) =>
-        $query->where('name', 'like', "%$search%")
-    )->select('maAdmin', 'hoTen', 'email')->get();
+    $admins = Admin::when($search, function ($query) use ($search) {
+        $query->where('hoTen', 'like', "%{$search}%");
+    })
+    ->select('maAdmin', 'hoTen', 'email')
+    ->paginate($perPage);
 
-    return response()->json($admins);
+   return response()->json([
+    'data' => $admins
+]);
+
 }
+
 
 }

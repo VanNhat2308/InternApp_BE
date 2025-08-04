@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->string('maNK'); // liên kết với nhật ký
             $table->foreign('maNK')->references('maNK')->on('nhat_kies')->onDelete('cascade');
-
+            $table->date('ngayThucHien')->nullable();
             $table->timestamps();
         });
     }

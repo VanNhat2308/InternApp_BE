@@ -119,6 +119,7 @@ Route::get('/messages/feedback-panel-student', [MessageController::class, 'feedb
 Route::post('/messages/mark-as-read', [MessageController::class, 'markAsRead']);
 Route::post('/messages/conversation/find-or-create', [MessageController::class, 'findOrCreateConversation']);
 Route::get('/messages/conversationV2/{id}', [MessageController::class, 'show']);
+Route::get('/messages/has-unread', [MessageController::class, 'hasUnreadMessages']);
 Route::delete('/conversations/{id}', [MessageController::class, 'destroy']);
 
 
@@ -166,6 +167,7 @@ Route::post('/vi-tris', [ViTriController::class, 'store']);
 
 // admin
 Route::post('/admin', [AdminController::class, 'store']);
+Route::get('/admins', [AdminController::class, 'index']);
 
 // login history
 Route::get('/LoginHistory', [LoginHistoryController::class, 'index']);

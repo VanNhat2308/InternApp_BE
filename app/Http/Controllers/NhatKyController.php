@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChiTietNhatKy;
 use App\Models\NhatKy;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class NhatKyController extends Controller
@@ -25,6 +26,7 @@ public function capNhatTrangThai($id)
     ]);
 }
 
+
 public function themChiTiet(Request $request, $id)
 {
     // Validate dữ liệu
@@ -32,7 +34,11 @@ public function themChiTiet(Request $request, $id)
         'tenCongViec' => 'required|string|max:255',
         'ketQua' => 'required|string|max:1000',
         'tienDo' => 'required|in:Hoàn thành,Chưa xong',
+        'ngayThucHien' => 'required|date_format:d/m/Y', // validate đúng định dạng nhập vào
     ]);
+
+    // Chuyển định dạng ngày thành yyyy-mm-dd
+    $ngayThucHien = Carbon::createFromFormat('d/m/Y', $validated['ngayThucHien'])->format('Y-m-d');
 
     // Kiểm tra nhật ký có tồn tại
     $nhatKy = NhatKy::findOrFail($id);
@@ -42,9 +48,9 @@ public function themChiTiet(Request $request, $id)
         'tenCongViec' => $validated['tenCongViec'],
         'ketQua' => $validated['ketQua'],
         'tienDo' => $validated['tienDo'],
+        'ngayThucHien' => $ngayThucHien, // đã chuyển định dạng
     ]);
 
-    // Gắn vào nhật ký
     $nhatKy->chiTietNhatKies()->save($chiTiet);
 
     return response()->json([
@@ -52,6 +58,7 @@ public function themChiTiet(Request $request, $id)
         'data' => $chiTiet,
     ], 201);
 }
+
 
   public function destroy($nhatKyId, $chiTietId)
 {
@@ -106,15 +113,18 @@ public function updateChiTietNK(Request $request, $nhatKyId, $chiTietId)
     ]);
 }
 
-    public function storeOrUpdateChiTiet(Request $request, $maNK)
+public function storeOrUpdateChiTiet(Request $request, $maNK)
 {
     $data = $request->validate([
-        'id' => 'nullable|exists:chi_tiet_nhat_kies,id', // Có thì cập nhật, không thì tạo mới
+        'id' => 'nullable|exists:chi_tiet_nhat_kies,id',
         'tenCongViec' => 'required|string',
         'ketQua' => 'nullable|string',
         'tienDo' => 'required|in:Hoàn thành,Chưa xong',
+        'ngayThucHien' => 'required|date_format:d/m/Y', // thêm validate ngày
     ]);
 
+    // Chuyển đổi định dạng từ d/m/Y -> Y-m-d để lưu vào DB
+    $data['ngayThucHien'] = \Carbon\Carbon::createFromFormat('d/m/Y', $data['ngayThucHien'])->format('Y-m-d');
     $data['maNK'] = $maNK;
 
     $chiTiet = ChiTietNhatKy::updateOrCreate(

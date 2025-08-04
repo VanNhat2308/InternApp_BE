@@ -47,40 +47,58 @@ public function markAsRead(Request $request)
 }
 
 
-    public function feedbackListForStudent(Request $request)
+public function feedbackListForStudent(Request $request)
 {
-    $sinhvienId = $request->query('id'); // maSV của sinh viên hiện tại
+    $studentId = $request->query('id'); // id sinh viên đang đăng nhập
     $search = $request->query('search');
 
-    // Tin nhắn mới nhất từ mỗi admin gửi đến sinh viên
-    $latestMessages = Message::where([
-            ['to_role', '=', 'sinhvien'],
-            ['to_id', '=', $sinhvienId],
-            ['from_role', '=', 'admin'],
-        ])
-        ->latest('created_at')
-        ->get()
-        ->unique('from_id') // mỗi admin chỉ xuất hiện 1 lần
-        ->take(10);
+    $conversations = Conversation::join('messages', 'messages.id', '=', 'conversations.last_message_id')
+        ->where(function ($q) use ($studentId) {
+            $q->where('user1_role', 'admin')->where('user2_role', 'sinhvien')->where('user2_id', $studentId);
+        })->orWhere(function ($q) use ($studentId) {
+            $q->where('user2_role', 'admin')->where('user1_role', 'sinhvien')->where('user1_id', $studentId);
+        })
+        ->orderByDesc('messages.created_at')
+        ->select('conversations.*')
+        ->with(['lastMessage'])
+        ->take(10)
+        ->get();
 
-    // Nạp thông tin admin
-    $latestMessages->load('adminSender');
+    $result = $conversations->map(function ($conv) {
+        // Lấy thông tin admin từ 2 phía
+        $admin = null;
 
-    // Format lại phản hồi
-    $result = $latestMessages->map(function ($msg) {
-        $admin = $msg->adminSender;
+        if ($conv->user1_role === 'admin') {
+            $admin = \App\Models\Admin::find($conv->user1_id);
+        } elseif ($conv->user2_role === 'admin') {
+            $admin = \App\Models\Admin::find($conv->user2_id);
+        }
+
+        $message = $conv->lastMessage;
+
+        if ($message && $message->content === '') {
+            $prevMessage = \App\Models\Message::where('conversation_id', $conv->id)
+                ->where('id', '!=', $message->id)
+                ->where('content', '!=', '')
+                ->orderByDesc('created_at')
+                ->first();
+
+            if ($prevMessage) {
+                $message = $prevMessage;
+            }
+        }
 
         return [
             'id' => $admin->maAdmin ?? null,
             'name' => $admin->hoTen ?? 'Không rõ',
-            'preview' => Str::limit($msg->content, 50),
-            'time' => $msg->created_at->diffForHumans(),
-            'unread' => !$msg->is_read,
-            'conversation_id' => $msg->conversation_id ?? null,
+            'preview' => Str::limit($message->content ?? '', 50),
+            'time' => $message->created_at?->diffForHumans() ?? '',
+            'unread' => $message->is_read,
+            'conversation_id' => $conv->id,
         ];
     });
 
-    // Lọc theo tên nếu có từ khóa
+    // Tìm kiếm theo tên admin
     if ($search) {
         $result = $result->filter(function ($item) use ($search) {
             return Str::contains(Str::lower($item['name']), Str::lower($search));
@@ -89,6 +107,7 @@ public function markAsRead(Request $request)
 
     return response()->json($result->values());
 }
+
 
     /**
      * 🔹 Lấy danh sách tin nhắn trong 1 cuộc hội thoại
@@ -299,5 +318,18 @@ public function destroy($id)
         ], 500);
     }
 }
+public function hasUnreadMessages(Request $request)
+{
+    $userId = $request->query('user_id');
+    $userRole = $request->query('user_role');
+
+    $hasUnread = Message::where('to_id', $userId)
+        ->where('to_role', $userRole)
+        ->where('is_read', false)
+        ->exists();
+
+    return response()->json(['has_unread' => $hasUnread]);
+}
+
 
 }
