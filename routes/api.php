@@ -110,6 +110,7 @@ Route::get('/lich/theo-tuan', [LichController::class, 'LichTheoTuan']);
 Route::get('/schedule/check', [LichController::class, 'checkCa']);
 Route::get('/lich/theo-thang', [LichController::class, 'lichTheoThang']);
 Route::post('/lich', [LichController::class, 'taoLich']);
+Route::post('/lich/nhieuSinhVien', [LichController::class, 'taoLichChoNhieuSinhVien']);
 Route::delete('/lich/{id}', [LichController::class, 'xoaTheoId']);
 Route::delete('/lich/sinhvien/{maSV}', [LichController::class, 'xoaTheoMaSV']);
 

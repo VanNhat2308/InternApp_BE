@@ -215,6 +215,74 @@ public function taoLich(Request $request)
     ]);
 }
 
+public function taoLichChoNhieuSinhVien(Request $request)
+{
+    $request->validate([
+        'maSV' => 'required|array|min:1',
+        'maSV.*' => 'exists:sinh_viens,maSV',
+        'ngay' => 'required|date',
+        'ca' => 'required|in:8:00-12:00,13:00-17:00',
+    ]);
+
+    $mapCa = [
+        '8:00-12:00' => ['time' => '08:00', 'duration' => 4],
+        '13:00-17:00' => ['time' => '13:00', 'duration' => 4],
+    ];
+
+    $ngay = Carbon::createFromFormat('Y-m-d', $request->ngay, 'Asia/Ho_Chi_Minh');
+    $today = Carbon::today();
+
+    if ($ngay->lt($today)) {
+        return response()->json(['message' => 'Không thể thêm lịch vào ngày đã qua!'], 400);
+    }
+
+    $caInfo = $mapCa[$request->ca];
+    $trungLich = [];
+
+    // Lặp từng sinh viên để kiểm tra trùng
+    foreach ($request->maSV as $maSV) {
+        $daTrung = Lich::where('maSV', $maSV)
+            ->where('ngay', $ngay->format('Y-m-d'))
+            ->where('time', $caInfo['time'])
+            ->exists();
+
+        if ($daTrung) {
+            $sinhVien = \App\Models\SinhVien::where('maSV', $maSV)->first();
+            $trungLich[] = $sinhVien->hoTen ?? $maSV;
+        }
+    }
+
+    // Nếu có sinh viên trùng, trả về lỗi
+    if (!empty($trungLich)) {
+        return response()->json([
+            'message' => 'Lịch bị trùng cho sinh viên: ' . implode(', ', $trungLich),
+        ], 409);
+    }
+
+    // Nếu không có trùng, tạo lịch cho từng sinh viên
+    $createdLich = [];
+
+    foreach ($request->maSV as $maSV) {
+        $lich = Lich::create([
+            'maLich' => 'LICH' . strtoupper(uniqid()),
+            'maSV' => $maSV,
+            'ngay' => $ngay->toDateString(),
+            'time' => $caInfo['time'],
+            'duration' => $caInfo['duration'],
+            'noiDung' => 'Lịch được thêm thủ công',
+            'trangThai' => 'Chưa học',
+        ]);
+
+        $createdLich[] = $lich;
+    }
+
+    return response()->json([
+        'message' => 'Tạo lịch thành công',
+        'data' => $createdLich,
+    ]);
+}
+
+
 
 
 
