@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('bao_caos', function (Blueprint $table) {
-            $table->string('maBC')->primary();       // Khóa chính
+            $table->increments('maBC');     
             $table->string('loai')->nullable();
             $table->date('ngayTao')->nullable();
             $table->text('noiDung')->nullable();
 
-            $table->unsignedBigInteger('maSV')->unique(); // 1-1: mỗi bản ghi chỉ gắn với 1 SinhVien     // Khóa ngoại, unique để đảm bảo 1-1
+            $table->unsignedBigInteger('maSV'); // 1-1: mỗi bản ghi chỉ gắn với 1 SinhVien     // Khóa ngoại, unique để đảm bảo 1-1
             $table->foreign('maSV')->references('maSV')->on('sinh_viens')->onDelete('cascade');
 
             $table->timestamps();

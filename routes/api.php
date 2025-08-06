@@ -102,6 +102,8 @@ Route::get('/download/{encoded}/{original}', function ($encoded, $original) {
 Route::get('/bao-cao', [BaoCaoController::class, 'danhSachBaoCao']);
 Route::get('/bao-cao/{maBC}', [BaoCaoController::class, 'chiTietBaoCao']);
 Route::delete('/bao-cao/{maBC}', [BaoCaoController::class, 'xoaBaoCao']);
+Route::post('/bao-cao', [BaoCaoController::class, 'store']);
+Route::get('/bao-cao-theo-ma', [BaoCaoController::class, 'BaoCaoTheoMa']);
 
 // lich
 Route::get('/lich/theo-tuan', [LichController::class, 'LichTheoTuan']);

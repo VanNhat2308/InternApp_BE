@@ -5,11 +5,63 @@ namespace App\Http\Controllers;
 use App\Models\BaoCao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class BaoCaoController extends Controller
 {
+public function BaoCaoTheoMa(Request $request)
+{
+    $maSV = $request->query('maSV');
+    $date = $request->query('date'); // Format: YYYY-MM-DD
 
+    $query = BaoCao::query();
 
+    if ($maSV) {
+        $query->where('maSV', $maSV);
+    }
+
+    if ($date) {
+        $query->whereDate('ngayTao', $date);
+    }
+
+    $reports = $query->get();
+
+    return response()->json([
+        'status' => true,
+        'data' => $reports
+    ]);
+}
+
+   public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'loai' => 'required|string|max:50',
+            'ngayTao' => 'required|date',
+            'noiDung' => 'required|string',
+            'tepDinhKem' => 'nullable|string',
+            'maSV' => 'required|integer|exists:sinh_viens,maSV', // điều chỉnh nếu tên bảng khác
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $baoCao = BaoCao::create([
+            'loai' => $request->loai,
+            'ngayTao' => $request->ngayTao,
+            'noiDung' => $request->noiDung,
+            'tepDinhKem' => $request->tepDinhKem,
+            'maSV' => $request->maSV,
+        ]);
+
+        return response()->json([
+            'message' => 'Tạo báo cáo thành công',
+            'data' => $baoCao
+        ], 201);
+    }
 
 public function danhSachBaoCao(Request $request)
 {
