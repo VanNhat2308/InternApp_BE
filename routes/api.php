@@ -10,6 +10,7 @@ use App\Http\Controllers\LichController;
 use App\Http\Controllers\LoginHistoryController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NhatKyController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ScheduleSwapController;
 use App\Http\Controllers\SinhVienController;
 use App\Http\Controllers\TaskCommentController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TruongController;
 use App\Http\Controllers\ViTriController;
 use App\Models\LoginHistory;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 
@@ -130,6 +132,7 @@ Route::delete('/conversations/{id}', [MessageController::class, 'destroy']);
 Route::post('/messages', [MessageController::class, 'store']);
 Route::get('/conversations/{id}/messages', [MessageController::class, 'getMessages']);
 
+Route::get('/notifications', [NotificationController::class, 'index']);
 
 // Nhat ky
 Route::get('/nhat-ky/details/{maSV}', [NhatKyController::class, 'index']);
@@ -174,3 +177,6 @@ Route::get('/admins', [AdminController::class, 'index']);
 
 // login history
 Route::get('/LoginHistory', [LoginHistoryController::class, 'index']);
+Route::post('/broadcasting/auth', function (Illuminate\Http\Request $request) {
+    return Broadcast::auth($request);
+})->middleware('auth:api_admin,api_sinhvien');

@@ -45,5 +45,9 @@ public function taskComments()
     return $this->morphMany(TaskComment::class, 'user');
 }
 
+public function notifications()
+{
+    return $this->morphMany(Notification::class, 'notifiable');
+}
 
 }

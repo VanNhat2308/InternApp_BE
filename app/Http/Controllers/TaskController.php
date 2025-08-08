@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewNotification;
+use App\Models\Admin;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\SinhVien;
 use App\Models\Task;
@@ -25,6 +28,7 @@ public function tongSoTaskTheoSinhVien($maSV)
 public function store(Request $request)
 {
     $validated = $request->validate([
+        'maAdmin' =>'exists:admin,maAdmin',
         'tieuDe' => 'required|string|max:255',
         'noiDung' => 'required|string',
         'maSV' => 'required|array',
@@ -47,6 +51,25 @@ public function store(Request $request)
     // Gán sinh viên thực hiện (nhiều-nhiều)
     $task->sinhViens()->attach($validated['maSV']);
 
+     // 3. Lấy thông tin admin từ maAdmin
+    $admin = Admin::where('maAdmin', $validated['maAdmin'])->first();
+
+    if ($admin) {
+        // 4. Tạo thông báo
+        $notification = $admin->notifications()->create([
+            'title'   => 'Task Mới Đã Được Thêm Vào',
+            'message' => 'Task mới đã được thêm vào và sinh viên đã có thể thấy',
+            'avatar'  => '/images/task.png', // icon minh hoạ
+        ]);
+    $unreadCount = Notification::where('notifiable_id', $admin->maAdmin)
+    ->where('is_read', 0)
+    ->count();
+
+        // 5. Bắn event qua Pusher (đúng channel admin.{id})
+        broadcast(new NewNotification($notification, "admin.{$admin->maAdmin}",$unreadCount));
+    }
+
+    
     return response()->json([
         'message' => 'Tạo task thành công',
         'data' => $task->load('sinhViens')

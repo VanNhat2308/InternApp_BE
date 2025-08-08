@@ -110,6 +110,10 @@ public function taskComments()
 
     // App\Models\SinhVien.php
 
+public function notifications()
+{
+    return $this->morphMany(Notification::class, 'notifiable');
+}
 
 
 
