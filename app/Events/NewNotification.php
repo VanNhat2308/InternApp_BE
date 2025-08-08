@@ -10,6 +10,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow; // phát ngay lập tức
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class NewNotification implements ShouldBroadcastNow
 {
@@ -21,6 +22,10 @@ class NewNotification implements ShouldBroadcastNow
 
     public function __construct(Notification $notification, $channelName, $unreadCount)
     {
+        Log::info("NewNotification event fired", [
+        'channel' => $channelName,
+        'unreadCount' => $unreadCount
+    ]);
         $this->notification = $notification;
         $this->channelName = $channelName; 
         $this->unreadCount = $unreadCount;

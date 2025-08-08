@@ -19,6 +19,8 @@ use App\Http\Controllers\TruongController;
 use App\Http\Controllers\ViTriController;
 use App\Models\LoginHistory;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -180,3 +182,6 @@ Route::get('/LoginHistory', [LoginHistoryController::class, 'index']);
 Route::post('/broadcasting/auth', function (Illuminate\Http\Request $request) {
     return Broadcast::auth($request);
 })->middleware('auth:api_admin,api_sinhvien');
+
+
+

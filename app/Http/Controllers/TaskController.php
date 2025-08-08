@@ -8,6 +8,7 @@ use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\SinhVien;
 use App\Models\Task;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
@@ -64,6 +65,7 @@ public function store(Request $request)
     $unreadCount = Notification::where('notifiable_id', $admin->maAdmin)
     ->where('is_read', 0)
     ->count();
+    Log::info($unreadCount);
 
         // 5. Bắn event qua Pusher (đúng channel admin.{id})
         broadcast(new NewNotification($notification, "admin.{$admin->maAdmin}",$unreadCount));
