@@ -179,9 +179,9 @@ Route::get('/admins', [AdminController::class, 'index']);
 
 // login history
 Route::get('/LoginHistory', [LoginHistoryController::class, 'index']);
-Route::post('/broadcasting/auth', function (Illuminate\Http\Request $request) {
-    return Broadcast::auth($request);
-})->middleware('auth:api_admin,api_sinhvien');
+// Route::post('/broadcasting/auth', function (Illuminate\Http\Request $request) {
+//     return Broadcast::auth($request);
+// })->middleware('auth:api_admin,api_sinhvien');
 
 
 

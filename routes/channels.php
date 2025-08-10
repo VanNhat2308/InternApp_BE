@@ -8,10 +8,10 @@ Broadcast::channel('chat.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 Broadcast::channel('admin.{id}', function ($user, $id) {
-    return $user instanceof App\Models\Admin && (int) $user->maAdmin === (int) $id;
+    return (int) $user->maAdmin === (int) $id;
 });
 
 
 Broadcast::channel('sinhvien.{id}', function ($user, $id) {
-    return $user instanceof App\Models\SinhVien && (int) $user->maSV === (int) $id;
+    return (int) $user->maSV === (int) $id;
 });

@@ -5,14 +5,11 @@ namespace App\Events;
 use App\Models\Notification;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\ShouldBroadcast;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow; // phát ngay lập tức
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class NewNotification implements ShouldBroadcastNow
+class NewNotification implements ShouldBroadcast
 {
     use InteractsWithSockets, SerializesModels;
 
@@ -34,7 +31,7 @@ class NewNotification implements ShouldBroadcastNow
 
     public function broadcastOn()
     {
-    return new PrivateChannel($this->channelName);
+    return new Channel($this->channelName);
     }
 
     public function broadcastAs()
