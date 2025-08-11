@@ -81,6 +81,7 @@ public function store(Request $request)
     $request->validate([
         'maSV' => 'required|exists:sinh_viens,maSV|unique:ho_sos,maSV',
         'ngayNop' => 'required|date',
+          'trangThai' => 'nullable|string',
     ]);
 
     $maHS = 'HS_' . Str::random(8); // VD: HS_ab12cd34
@@ -89,7 +90,7 @@ public function store(Request $request)
         'maHS' => $maHS,
         'maSV' => $request->maSV,
         'ngayNop' => $request->ngayNop,
-        'trangThai' => 'Chờ duyệt',
+        'trangThai' =>$request->trangThai ?? 'Chờ duyệt',
     ]);
 
     return response()->json([
