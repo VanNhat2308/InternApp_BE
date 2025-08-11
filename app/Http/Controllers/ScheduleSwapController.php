@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewNotification;
+use App\Models\Admin;
 use App\Models\Lich;
+use App\Models\Notification;
 use App\Models\ScheduleSwap;
+use App\Models\SinhVien;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ScheduleSwapController extends Controller
@@ -76,6 +81,27 @@ public function index(Request $request)
 
         $swap = ScheduleSwap::create($validated);
 
+            // 3. Lấy thông tin admin từ maAdmin
+    $sinhvien = SinhVien::where('maSV', $validated['maSV'])->first();
+    $admin = Admin::where('maAdmin', 1)->first();
+
+    if ($admin) {
+        // 4. Tạo thông báo
+        $notification = $admin->notifications()->create([
+            'title'   => 'Yêu cầu đổi lịch',
+            'message' => 'Bạn nhận được yêu cầu đổi lịch từ '. $sinhvien->hoTen,
+            'avatar'  => '/images/task.png', // icon minh hoạ
+        ]);
+    $unreadCount = Notification::where('notifiable_id', $admin->maAdmin)
+    ->where('is_read', 0)
+    ->count();
+
+        // 5. Bắn event qua Pusher (đúng channel admin.{id})
+        broadcast(new NewNotification($notification, "admin.{$admin->maAdmin}",$unreadCount));
+    }
+
+
+
         return response()->json([
             'message' => 'Gửi yêu cầu đổi ca thành công.',
             'data'    => $swap
@@ -123,6 +149,28 @@ public function index(Request $request)
         $swap->save();
 
         DB::commit();
+
+               // 3. Lấy thông tin admin từ maAdmin
+    $sinhvien = SinhVien::where('maSV', $swap->maSV)->first();
+
+
+    if ($sinhvien) {
+        // 4. Tạo thông báo
+        $notification = $sinhvien->notifications()->create([
+            'title'   => 'Yêu cầu đổi lịch',
+            'message' => 'Yêu cầu đổi lịch của bạn đã được chấp nhận ',
+            'avatar'  => '/images/task.png', // icon minh hoạ
+        ]);
+    $unreadCount = Notification::where('notifiable_id',$sinhvien->maSV)
+    ->where('is_read', 0)
+    ->count();
+
+        // 5. Bắn event qua Pusher (đúng channel admin.{id})
+        broadcast(new NewNotification($notification, "sinhvien.{$sinhvien->maSV}",$unreadCount));
+    }
+
+
+
         return response()->json(['message' => 'Duyệt và đổi lịch thành công']);
     } catch (\Exception $e) {
         DB::rollBack();
@@ -170,6 +218,24 @@ public function index(Request $request)
     $swap->status = 'rejected';
     $swap->admin_note = $validated['admin_note'] ?? null;
     $swap->save();
+                   // 3. Lấy thông tin admin từ maAdmin
+    $sinhvien = SinhVien::where('maSV', $swap->maSV)->first();
+
+
+    if ($sinhvien) {
+        // 4. Tạo thông báo
+        $notification = $sinhvien->notifications()->create([
+            'title'   => 'Yêu cầu đổi lịch',
+            'message' => 'Yêu cầu đổi lịch của bạn đã bị từ chối',
+            'avatar'  => '/images/task.png', // icon minh hoạ
+        ]);
+    $unreadCount = Notification::where('notifiable_id',$sinhvien->maSV)
+    ->where('is_read', 0)
+    ->count();
+
+        // 5. Bắn event qua Pusher (đúng channel admin.{id})
+        broadcast(new NewNotification($notification, "sinhvien.{$sinhvien->maSV}",$unreadCount));
+    }
 
     return response()->json([
         'message' => 'Từ chối yêu cầu thành công.',

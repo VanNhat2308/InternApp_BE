@@ -179,6 +179,14 @@ Route::get('/admins', [AdminController::class, 'index']);
 
 // login history
 Route::get('/LoginHistory', [LoginHistoryController::class, 'index']);
+
+
+
+// nofication
+Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
+Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+Route::delete('/notifications/delete-all', [NotificationController::class, 'deleteAll']);
+
 // Route::post('/broadcasting/auth', function (Illuminate\Http\Request $request) {
 //     return Broadcast::auth($request);
 // })->middleware('auth:api_admin,api_sinhvien');
