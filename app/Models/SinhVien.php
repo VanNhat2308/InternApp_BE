@@ -44,7 +44,7 @@ class SinhVien extends Authenticatable implements JWTSubject
 
   public function getAuthIdentifierName()
     {
-        return 'tenDangNhap';
+        return 'email';
     }
 
     // Laravel mặc định dùng cột `password`, nên override:

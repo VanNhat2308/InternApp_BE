@@ -11,6 +11,7 @@ use App\Http\Controllers\LoginHistoryController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NhatKyController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ScheduleSwapController;
 use App\Http\Controllers\SinhVienController;
 use App\Http\Controllers\TaskCommentController;
@@ -192,4 +193,11 @@ Route::delete('/notifications/delete-all', [NotificationController::class, 'dele
 // })->middleware('auth:api_admin,api_sinhvien');
 
 
+
+// password reset
+
+Route::post('/forgot-password', [PasswordResetController::class, 'sendOtp']);
+Route::post('/verify-otp', [PasswordResetController::class, 'verifyOtp']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+Route::post('/change-password', [PasswordResetController::class, 'changePassword']);
 

@@ -38,7 +38,7 @@ private function loginWithGuard(Request $request, $guard, $role)
     ];
 
     if ($role === 'sinhvien') {
-        $rules['tenDangNhap'] = 'required|string';
+        $rules['email'] = 'required|string';
     } else {
         $rules['email'] = 'required|email';
     }
@@ -56,7 +56,7 @@ private function loginWithGuard(Request $request, $guard, $role)
 
     // 3. Lấy credentials
     $credentials = ($role === 'sinhvien')
-        ? $request->only('tenDangNhap', 'password')
+        ? $request->only('email', 'password')
         : $request->only('email', 'password');
 
     // 4. Debug xem credentials là gì
@@ -64,7 +64,7 @@ private function loginWithGuard(Request $request, $guard, $role)
 
     // 5. Tìm user thủ công trước để kiểm tra password đúng không
     if ($role === 'sinhvien') {
-        $user = \App\Models\SinhVien::where('tenDangNhap', $credentials['tenDangNhap'])->first();
+        $user = \App\Models\SinhVien::where('email', $credentials['email'])->first();
     } else {
         $user = \App\Models\Admin::where('email', $credentials['email'])->first();
     }
