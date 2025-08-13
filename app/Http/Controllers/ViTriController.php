@@ -12,16 +12,23 @@ class ViTriController extends Controller
         return ViTri::all();
     }
 
-        public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'tenViTri' => 'required|string|max:255',
-        ]);
+    public function store(Request $request)
+{
+    $validated = $request->validate([
+        'tenViTri' => 'required|string|max:255|unique:vi_tris,tenViTri',
+    ], [
+        'tenViTri.required' => 'Tên vị trí không được để trống.',
+        'tenViTri.unique'   => 'Tên vị trí đã tồn tại.',
+    ]);
 
-        $viTri = ViTri::create($validated);
+    $viTri = ViTri::create($validated);
 
-        return response()->json($viTri, 201);
-    }
+    return response()->json([
+        'message' => 'Thêm vị trí thành công.',
+        'data' => $viTri
+    ], 201);
+}
+
 
      public function DsViTri(Request $request)
     {
@@ -39,19 +46,26 @@ class ViTriController extends Controller
     ]);
     }
 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'tenViTri' => 'required|string|max:255',
-        ]);
+  public function update(Request $request, $id)
+{
+    $request->validate([
+        'tenViTri' => 'required|string|max:255|unique:vi_tris,tenViTri,' . $id,
+    ], [
+        'tenViTri.required' => 'Tên vị trí không được để trống.',
+        'tenViTri.unique'   => 'Tên vị trí đã tồn tại.',
+    ]);
 
-        $viTri = ViTri::findOrFail($id);
-        $viTri->update([
-            'tenViTri' => $request->tenViTri,
-        ]);
+    $viTri = ViTri::findOrFail($id);
+    $viTri->update([
+        'tenViTri' => $request->tenViTri,
+    ]);
 
-        return response()->json(['message' => 'Cập nhật thành công']);
-    }
+    return response()->json([
+        'message' => 'Cập nhật vị trí thành công.',
+        'data'    => $viTri
+    ]);
+}
+
 
     public function destroy($id)
     {

@@ -104,7 +104,7 @@ public function index(Request $request)
         $query->where('ky_thuc_tap', $kyThucTap);
     }
 
-    $sinhViens = $query->paginate($perPage);
+    $sinhViens = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
     return response()->json([
         'status' => 'success',
